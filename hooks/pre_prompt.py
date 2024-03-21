@@ -12,3 +12,7 @@ if __name__ == "__main__":
     if not is_docker_installed():
         print("ERROR: Docker is not installed.")
         sys.exit(1)
+    else:
+        print("Docker is installed.")
+        sys.exit(0)
+

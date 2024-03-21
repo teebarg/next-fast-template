@@ -1,11 +1,11 @@
-# {{cookiecutter.project_name}} - Base Project Generator
+# {{cookiecutter.project_name}} - Project Generator
 
 Author: {{cookiecutter.author_name}}
 Email: {{cookiecutter.email}}
 
 {{cookiecutter.description}}
 
-## 🚨 Warning: in construction 😎 🏗️
+## 🚨 Warning: still in construction 😎 🏗️
 
 Generate a backend and frontend stack using Python, including interactive API documentation.
 
@@ -16,10 +16,6 @@ Generate a backend and frontend stack using Python, including interactive API do
 ### Dashboard Login
 
 [![API docs](img/login.jpg)](https://github.com/teebarg/next-fast-template)
-
-### Dashboard - Create User
-
-[![API docs](img/dashboard.png)](https://github.com/teebarg/next-fast-template)
 
 ## Features
 
@@ -37,8 +33,6 @@ Generate a backend and frontend stack using Python, including interactive API do
 * Basic starting models for users (modify and remove as you need).
 * **Alembic** migrations.
 * **CORS** (Cross Origin Resource Sharing).
-* **Celery** worker that can import and use models and code from the rest of the backend selectively.
-* REST backend tests based on **Pytest**, integrated with Docker, so you can test the full API interaction, independent on the database. As it runs in Docker, it can build a new data store from scratch each time (so you can use ElasticSearch, MongoDB, CouchDB, or whatever you want, and just test that the API works).
 
 * **Nextjs** frontend:
     * **JWT Authentication** handling.
@@ -88,134 +82,21 @@ The input variables, with their default values (some auto generated) are:
 * `first_superuser`: The first superuser generated, with it you will be able to create more users, etc. By default, based on the domain.
 * `first_superuser_password`: First superuser password. Use the method above to generate it.
 * `backend_cors_origins`: Origins (domains, more or less) that are enabled for CORS (Cross Origin Resource Sharing). This allows a frontend in one domain (e.g. `https://dashboard.example.com`) to communicate with this backend, that could be living in another domain (e.g. `https://api.example.com`). It can also be used to allow your local frontend (with a custom `hosts` domain mapping, as described in the project's `README.md`) that could be living in `http://dev.example.com:8080` to communicate with the backend at `https://stag.example.com`. Notice the `http` vs `https` and the `dev.` prefix for local development vs the "staging" `stag.` prefix. By default, it includes origins for production, staging and development, with ports commonly used during local development by several popular frontend frameworks (Vue with `:8080`, React, Angular).
-* `smtp_port`: Port to use to send emails via SMTP. By default `587`.
-* `smtp_host`: Host to use to send emails, it would be given by your email provider, like Mailgun, Sparkpost, etc.
-* `smtp_user`: The user to use in the SMTP connection. The value will be given by your email provider.
-* `smtp_password`: The password to be used in the SMTP connection. The value will be given by the email provider.
-* `smtp_emails_from_email`: The email account to use as the sender in the notification emails, it would be something like `info@your-custom-domain.com`.
 
 * `postgres_password`: Postgres database password. Use the method above to generate it. (You could easily modify it to use MySQL, MariaDB, etc).
 * `pgadmin_default_user`: PGAdmin default user, to log-in to the PGAdmin interface.
 * `pgadmin_default_user_password`: PGAdmin default user password. Generate it with the method above.
 
+* `nextauth_secret`: Secret for Next Auth package.
+* `nextauth_url`: Next Auth Url. Ex http://localhost:4000.
+* `next_public_domain`: Nextjs Domain. Ex <http://localhost:4000>.
+* `image_url`: Your image storage url.
+* `google_client_id`: Google client id for auth, storage.
+* `google_client_secret`: Google client secret.
 
 ## More details
 
 After using this generator, your new project (the directory created) will contain an extensive `README.md` with instructions for development, deployment, etc. You can pre-read [the project `README.md` template here too](./{{cookiecutter.project_slug}}/README.md).
-
-## Common commands
-
-### To create a migration file
-
-```bash
-alembic revision -m "create users table"
-```
-
-### To run migration
-
-```bash
-alembic upgrade head
-```
-
-### To run a specific migration file
-
-```bash
-alembic upgrade ae1
-```
-
-### Relative Migration Identifiers
-
-```bash
-alembic upgrade +2
-alembic downgrade -1
-
-alembic upgrade ae10+2
-```
-
-### Migration Relationships
-
-```sql
-    op.create_table(
-        "item",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("title", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("owner_id", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["owner_id"],
-            ["user.id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
-    )
-```
-
-```python
-def upgrade() -> None:
-    op.create_table(
-        "product",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("is_active", sa.Boolean(), nullable=False),
-        sa.Column("price", sa.Integer(), nullable=False),
-        sa.Column("image", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.PrimaryKeyConstraint("id"),
-    )
-    op.create_index(op.f("ix_product_name"), "product", ["name"], unique=True)
-    op.create_table(
-        "product_collection",
-        sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("product_id", sa.Integer(), nullable=False),
-        sa.Column("collection_id", sa.Integer(), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
-        sa.ForeignKeyConstraint(
-            ["product_id"],
-            ["product.id"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["collection_id"],
-            ["collection.id"],
-        ),
-        sa.PrimaryKeyConstraint("id"),
-    )
-
-def downgrade() -> None:
-    op.drop_table("product_collection")
-    op.drop_index(op.f("ix_product_name"), table_name="product")
-    op.drop_table("product")
-```
-
-### To start up local dev
-
-* create a virtual env
-* change dir to `backend` and run pip install -r requirement.txt
-* Goto root dir and run `make dev`
-
-### To run backend
-
-```bash
-cd {{cookiecutter.project_name}}/backend
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-### To run frontend
-
-```bash
-cd {{cookiecutter.project_name}}/frontend
-npm install
-npm run dev
-```
-
-### To load initial data
-
-* Run below in not using docker
-```bash
-make prep
-```
 
 ## License
 
