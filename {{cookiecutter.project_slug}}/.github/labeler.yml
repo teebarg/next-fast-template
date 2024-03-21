@@ -1,5 +1,0 @@
-Frontend:
-- '{{ cookiecutter.project_slug }}'/frontend/**
-
-Backend:
-- '{{ cookiecutter.project_slug }}'/backend/**

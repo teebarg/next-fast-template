@@ -1,9 +1,7 @@
-# {{cookiecutter.project_name}} - Project Generator
+# Nextjs Fastapi Project Generator
 
-Author: {{cookiecutter.author_name}}
-Email: {{cookiecutter.email}}
-
-{{cookiecutter.description}}
+Author: Adeniyi Aderounmu
+Email: teebarg01@gmail.com
 
 ## 🚨 Warning: still in construction 😎 🏗️
 
@@ -17,44 +15,94 @@ Generate a backend and frontend stack using Python, including interactive API do
 
 [![API docs](img/login.jpg)](https://github.com/teebarg/next-fast-template)
 
-## Features
+## Technology Stack and Features
 
-* Full **Docker** integration (Docker based).
-* **Docker Compose** integration and optimization for local development.
-* Python **FastAPI** backend:
-    * **Fast**: Very high performance, on par with **NodeJS** and **Go** (thanks to Starlette and Pydantic).
-    * **Intuitive**: Great editor support. <abbr title="also known as auto-complete, autocompletion, IntelliSense">Completion</abbr> everywhere. Less time debugging.
-    * **Easy**: Designed to be easy to use and learn. Less time reading docs.
-    * **Short**: Minimize code duplication. Multiple features from each parameter declaration.
-    * **Robust**: Get production-ready code. With automatic interactive documentation.
-    * **Standards-based**: Based on (and fully compatible with) the open standards for APIs: <a href="https://github.com/OAI/OpenAPI-Specification" class="external-link" target="_blank">OpenAPI</a> and <a href="http://json-schema.org/" class="external-link" target="_blank">JSON Schema</a>.
-* **JWT token** authentication.
-* **SQLModel** models (independent of Flask extensions, so they can be used with Celery workers directly).
-* Basic starting models for users (modify and remove as you need).
-* **Alembic** migrations.
-* **CORS** (Cross Origin Resource Sharing).
-
-* **Nextjs** frontend:
-    * **JWT Authentication** handling.
-    * Uses **NextAuth** for authentication.
-    * Login view.
-    * After login, main dashboard view.
-    * Main dashboard with user creation and edition.
-    * Self user edition.
-    * **TypeScript**.
-    * It's also easy to remove it if you have an API-only app, check the instructions in the generated `README.md`.
-* **PGAdmin** for PostgreSQL database, you can modify it to use PHPMyAdmin and MySQL easily.
-* Load balancing between frontend and backend with **Traefik**, so you can have both under the same domain, separated by path, but served by different containers.
-* Traefik integration, including Let's Encrypt **HTTPS** certificates automatic generation.
+- ⚡ [**FastAPI**](https://github.com/teebarg/next-fast-template) for the Python backend API.
+    - 🧰 [SQLModel](https://niyi.com.ng) for the Python SQL database interactions (ORM).
+    - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
+    - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
+- 🚀 [Nextjs](https://nextjs.org/) for the frontend.
+    - 💃 Using TypeScript, hooks and other parts of a modern frontend stack.
+    - 🎨 [Tailwindcss](https://tailwindcss.com/) for the frontend styling.
+    - 🎨 [Daisy UI](https://daisyui.com/) for the frontend components.
+    - 🤖 An automatically generated frontend client.
+    - 🦇 Dark mode support.
+- 🐋 [Docker Compose](https://www.docker.com) for development and production.
+- 🔒 Secure password hashing by default.
+- 🔑 JWT token authentication.
+- 📫 Email based password recovery.
+- ✅ Tests with [Pytest](https://pytest.org).
+- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
+- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
+- 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
 
 ## How to use it
 
-Go to the directory where you want to create your project and run:
+You can **just fork or clone** this repository and use it as is.
+
+✨ It just works. ✨
+
+### Configure
+
+You can then update configs in the `.env` files to customize your configurations.
+
+Before deploying it, make sure you change at least the values for:
+
+- `SECRET_KEY`
+- `FIRST_SUPERUSER_PASSWORD`
+- `POSTGRES_PASSWORD`
+
+### Generate Secret Keys
+
+Some environment variables in the `.env` file have a default value of `changethis`.
+
+You have to change them with a secret key, to generate secret keys you can run the following command:
 
 ```bash
-pip install cookiecutter
-cookiecutter https://github.com/teebarg/next-fast-template
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
+
+Copy the content and use that as password / secret key. And run that again to generate another secure key.
+
+## How To Use It - Alternative With Copier
+
+This repository also supports generating a new project using [Copier](https://copier.readthedocs.io).
+
+It will copy all the files, ask you configuration questions, and update the `.env` files with your answers.
+
+### Install Copier
+
+You can install Copier with:
+
+```bash
+pip install copier
+```
+
+Or better, if you have [`pipx`](https://pipx.pypa.io/), you can run it with:
+
+```bash
+pipx install copier
+```
+
+**Note**: If you have `pipx`, installing copier is optional, you could run it directly.
+
+### Generate a Project With Copier
+
+Decide a name for your new project's directory, you will use it below. For example, `my-awesome-project`.
+
+Go to the directory that will be the parent of your project, and run the command with your project's name:
+
+```bash
+copier copy https://github.com/teebarg/next-fast-template my-awesome-project --trust
+```
+
+If you have `pipx` and you didn't install `copier`, you can run it directly:
+
+```bash
+pipx run copier copy https://github.com/teebarg/next-fast-template my-awesome-project --trust
+```
+
+**Note** the `--trust` option is necessary to be able to execute a [post-creation script](https://github.com/teebarg/next-fast-template/blob/master/.copier/update_dotenv.py) that updates your `.env` files.
 
 ### Generate passwords
 
@@ -69,23 +117,20 @@ Copy the contents and use that as password / secret key. And run that again to g
 
 ### Input variables
 
-The generator (cookiecutter) will ask you for some data, you might want to have at hand before generating the project.
+Copier will ask you for some data, you might want to have at hand before generating the project.
+
+But don't worry, you can just update any of that in the `.env` files afterwards.
 
 The input variables, with their default values (some auto generated) are:
 
-* `project_name`: The name of the project
+- `project_name`: (default: `"Nextjs FastAPI Project"`) The name of the project, shown to API users (in .env).
 * `project_slug`: The development friendly name of the project. By default, based on the project name
-* `domain_main`: The domain in where to deploy the project for production (from the branch `production`), used by the load balancer, backend, etc. By default, based on the project slug.
-* `domain_staging`: The domain in where to deploy while staging (before production) (from the branch `master`). By default, based on the main domain.
+- `stack_name`: (default: `"fastapi-project"`) The name of the stack used for Docker Compose labels (no spaces) (in .env).
+- `secret_key`: (default: `"changethis"`) The secret key for the project, used for security, stored in .env, you can generate one with the method above.
+- `first_superuser`: (default: `"admin@example.com"`) The email of the first superuser (in .env).
+- `first_superuser_password`: (default: `"changethis"`) The password of the first superuser (in .env).
 
-* `secret_key`: Backend server secret key. Use the method above to generate it.
-* `first_superuser`: The first superuser generated, with it you will be able to create more users, etc. By default, based on the domain.
-* `first_superuser_password`: First superuser password. Use the method above to generate it.
-* `backend_cors_origins`: Origins (domains, more or less) that are enabled for CORS (Cross Origin Resource Sharing). This allows a frontend in one domain (e.g. `https://dashboard.example.com`) to communicate with this backend, that could be living in another domain (e.g. `https://api.example.com`). It can also be used to allow your local frontend (with a custom `hosts` domain mapping, as described in the project's `README.md`) that could be living in `http://dev.example.com:8080` to communicate with the backend at `https://stag.example.com`. Notice the `http` vs `https` and the `dev.` prefix for local development vs the "staging" `stag.` prefix. By default, it includes origins for production, staging and development, with ports commonly used during local development by several popular frontend frameworks (Vue with `:8080`, React, Angular).
-
-* `postgres_password`: Postgres database password. Use the method above to generate it. (You could easily modify it to use MySQL, MariaDB, etc).
-* `pgadmin_default_user`: PGAdmin default user, to log-in to the PGAdmin interface.
-* `pgadmin_default_user_password`: PGAdmin default user password. Generate it with the method above.
+- `postgres_password`: (default: `"changethis"`) The password for the PostgreSQL database, stored in .env, you can generate one with the method above.
 
 * `nextauth_secret`: Secret for Next Auth package.
 * `nextauth_url`: Next Auth Url. Ex http://localhost:4000.
@@ -94,10 +139,24 @@ The input variables, with their default values (some auto generated) are:
 * `google_client_id`: Google client id for auth, storage.
 * `google_client_secret`: Google client secret.
 
-## More details
+## Backend Development
 
-After using this generator, your new project (the directory created) will contain an extensive `README.md` with instructions for development, deployment, etc. You can pre-read [the project `README.md` template here too](./{{cookiecutter.project_slug}}/README.md).
+Backend docs: [backend/README.md](./backend/README.md).
+
+## Frontend Development
+
+Frontend docs: [frontend/README.md](./frontend/README.md).
+
+## Deployment
+
+Deployment docs: [deployment.md](./deployment.md).
+
+## Development
+
+General development docs: [development.md](./development.md).
+
+This includes using Docker Compose, custom local domains, `.env` configurations, etc.
 
 ## License
 
-This project is licensed under the terms of the MIT license.
+The Full Stack FastAPI Template is licensed under the terms of the MIT license.
