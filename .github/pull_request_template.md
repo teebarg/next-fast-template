@@ -8,18 +8,10 @@
 
 ## What type of PR is this? (check all applicable)
 
--   [ ] Refactor
--   [ ] Feature
--   [ ] Bug Fix
--   [ ] Optimization
--   [ ] Documentation Update
-
+- [ ] Refactor
+- [ ] Feature
+- [ ] Bug Fix
+- [ ] Optimization
+- [ ] Documentation Update
 
 ## QA Instructions, Screenshots
-
-
-## Are there any post-deployment tasks we need to perform?
-
--   [ ] yes
--   [ ] no
-

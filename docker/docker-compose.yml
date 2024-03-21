@@ -8,12 +8,12 @@ services:
     ports:
       - 4000:4000
     volumes:
-      # - ./${TRAEFIK_CONFIG}:/config.yml:ro
       - ./lb-local.yml:/config.yml:ro
 
   api:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     build:
-      context: ../backend
+      context: ../${PROJECT_SLUG?Variable not set}/backend
     env_file:
       - ${ENV_FILE:-local.env}
     ports:
@@ -22,8 +22,9 @@ services:
       - ../backend:/app/
 
   frontend:
+    image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
     build:
-      context: ../frontend
+      context: ../${PROJECT_SLUG?Variable not set}/frontend
     env_file:
       - ${ENV_FILE:-local.env}
     ports:

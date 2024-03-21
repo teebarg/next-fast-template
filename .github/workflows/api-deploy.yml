@@ -34,10 +34,10 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   push: true
-                  tags: ${{ secrets.DOCKER_USERNAME }}/fast-template:latest
+                  tags: ${{ secrets.DOCKER_USERNAME }}/project-slug:latest
                   context: "{{defaultContext}}:backend"
 
-            - name: Deploy
+            - name: Deploy to Render
               env:
                 deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
               run: |

@@ -1,7 +1,9 @@
 .PHONY: help
 .EXPORT_ALL_VARIABLES:
 
-APP_NAME := shopit-backend
+PROJECT_SLUG := {{ cookiecutter.project_slug }}
+
+APP_NAME := $(PROJECT_SLUG)-backend
 # environment variables
 
 help:		## Show this help
@@ -18,13 +20,13 @@ lb-ssl:
 
 # Using Terminal
 serve-backend:
-	@cd backend; make dev
+	@cd $(PROJECT_SLUG)/backend; make dev
 
 serve-frontend:
-	@cd frontend; make dev
+	@cd $(PROJECT_SLUG)/frontend; make dev
 
 dev:
-	pip install -r backend/requirements.txt --require-virtualenv
+	pip install -r $(PROJECT_SLUG)/backend/requirements.txt
 	make -j 4 lb db serve-backend serve-frontend
 
 prep:
@@ -32,7 +34,7 @@ prep:
 
 # Using Docker
 db:
-	@docker compose -f backend/docker-compose.yml up --build
+	@docker compose -f $(PROJECT_SLUG)/backend/docker-compose.yml up --build
 
 ## Start local development environment
 start:
@@ -42,20 +44,20 @@ start:
 stop:
 	@COMPOSE_PROJECT_NAME=test docker compose -f docker/docker-compose.yml down
 
-# This target can be used in a separate terminal to update any containers after a change in config without restarting (environment variables, requirements.txt, etc)
-update:
-	docker compose -p local -f docker/docker-compose.yml --env-file docker/local.env up --build -d
-
 prep-docker:
 	docker exec local-api-1 ./prestart.sh
 
+
+# Deployment
 build:
-	docker build -f backend/Dockerfile -t $(APP_NAME) ./backend
+	docker build -f $(PROJECT_SLUG)/backend/Dockerfile -t $(APP_NAME) .$(PROJECT_SLUG)/backend
 
 stage:
-	docker tag $(APP_NAME):latest beafdocker/fast-template:latest
-	docker push beafdocker/fast-template:latest
+	docker tag $(APP_NAME):latest beafdocker/$(APP_NAME):latest
+	docker push beafdocker/$(APP_NAME):latest
 
+
+# Testing
 backend-test:
 	cd backend/
 
@@ -64,6 +66,7 @@ backend-test:
 
 frontend-test:
 	@cd frontend && npm run test
+
 
 # Helpers
 c:

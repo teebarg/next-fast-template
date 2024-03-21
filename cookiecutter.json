@@ -1,0 +1,32 @@
+{
+    "project_name": "Nextjs Fastapi Template",
+    "project_short": "template",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+    "author": "Adeniyi Aderounmu",
+    "description": "A Nextjs Fastapi Starter Template",
+    "domain_main": "email.com",
+
+    "secret_key": "changethis",
+    "first_superuser": "admin@{{cookiecutter.domain_main}}",
+    "first_superuser_password": "changethis",
+    "first_superuser_firstname": "admin",
+    "first_superuser_lastname": "admin",
+    "backend_cors_origins": "[\"http://localhost\", \"http://localhost:4200\", \"http://localhost:3000\", \"http://localhost:8080\", \"https://localhost\", \"https://localhost:4200\", \"https://localhost:3000\", \"https://localhost:8080\"]",
+
+    "postgres_password": "password",
+    "postgres_db": "db",
+    "pgadmin_default_user": "{{cookiecutter.first_superuser}}",
+    "pgadmin_default_user_password": "{{cookiecutter.first_superuser_password}}",
+
+    "docker_image_backend": "{{cookiecutter.project_slug}}-backend",
+    "docker_image_frontend": "{{cookiecutter.project_slug}}-frontend",
+
+    "nextauth_secret": "changethis",
+    "nextauth_url": "http://localhost:4000",
+    "next_public_domain": "http://localhost:4000",
+    "image_url": "https://firebasestorage.googleapis.com/v0/b/project-id.appspot.com/o",
+    "google_client_id": "837829923-926mshhs7ue292jj7ocm.apps.googleusercontent.com",
+    "google_client_secret": "SECRET-345-j7-_y6Msecretm5Xac-uQAU",
+
+    "_copy_without_render": ["frontend/src/**/*.html", "frontend/src/**/*.vue", "frontend/node_modules/*", "backend/app/app/email-templates/**"]
+}

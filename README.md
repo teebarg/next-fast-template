@@ -1,4 +1,9 @@
-# Full Stack Nextjs, FastAPI and PostgreSQL - Base Project Generator
+# {{cookiecutter.project_name}} - Base Project Generator
+
+Author: {{cookiecutter.author_name}}
+Email: {{cookiecutter.email}}
+
+{{cookiecutter.description}}
 
 ## 🚨 Warning: in construction 😎 🏗️
 
@@ -6,16 +11,15 @@ Generate a backend and frontend stack using Python, including interactive API do
 
 ### Interactive API documentation
 
-[![API docs](img/docs.jpg)](https://github.com/teebarg/shopit)
-
+[![API docs](img/docs.jpg)](https://github.com/teebarg/next-fast-template)
 
 ### Dashboard Login
 
-[![API docs](img/login.jpg)](https://github.com/teebarg/shopit)
+[![API docs](img/login.jpg)](https://github.com/teebarg/next-fast-template)
 
 ### Dashboard - Create User
 
-[![API docs](img/dashboard.png)](https://github.com/teebarg/shopit)
+[![API docs](img/dashboard.png)](https://github.com/teebarg/next-fast-template)
 
 ## Features
 
@@ -55,7 +59,7 @@ Go to the directory where you want to create your project and run:
 
 ```bash
 pip install cookiecutter
-cookiecutter https://github.com/teebarg/shopit
+cookiecutter https://github.com/teebarg/next-fast-template
 ```
 
 ### Generate passwords
@@ -68,7 +72,6 @@ openssl rand -hex 32
 ```
 
 Copy the contents and use that as password / secret key. And run that again to generate another secure key.
-
 
 ### Input variables
 
@@ -90,7 +93,7 @@ The input variables, with their default values (some auto generated) are:
 * `smtp_user`: The user to use in the SMTP connection. The value will be given by your email provider.
 * `smtp_password`: The password to be used in the SMTP connection. The value will be given by the email provider.
 * `smtp_emails_from_email`: The email account to use as the sender in the notification emails, it would be something like `info@your-custom-domain.com`.
- 
+
 * `postgres_password`: Postgres database password. Use the method above to generate it. (You could easily modify it to use MySQL, MariaDB, etc).
 * `pgadmin_default_user`: PGAdmin default user, to log-in to the PGAdmin interface.
 * `pgadmin_default_user_password`: PGAdmin default user password. Generate it with the method above.
@@ -100,25 +103,28 @@ The input variables, with their default values (some auto generated) are:
 
 After using this generator, your new project (the directory created) will contain an extensive `README.md` with instructions for development, deployment, etc. You can pre-read [the project `README.md` template here too](./{{cookiecutter.project_slug}}/README.md).
 
-
 ## Common commands
 
 ### To create a migration file
+
 ```bash
 alembic revision -m "create users table"
 ```
 
 ### To run migration
+
 ```bash
 alembic upgrade head
 ```
 
 ### To run a specific migration file
+
 ```bash
 alembic upgrade ae1
 ```
 
 ### Relative Migration Identifiers
+
 ```bash
 alembic upgrade +2
 alembic downgrade -1
@@ -126,11 +132,83 @@ alembic downgrade -1
 alembic upgrade ae10+2
 ```
 
+### Migration Relationships
+
+```sql
+    op.create_table(
+        "item",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("description", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("title", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+        sa.Column("owner_id", sa.Integer(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["owner_id"],
+            ["user.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+```
+
+```python
+def upgrade() -> None:
+    op.create_table(
+        "product",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("is_active", sa.Boolean(), nullable=False),
+        sa.Column("price", sa.Integer(), nullable=False),
+        sa.Column("image", sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.PrimaryKeyConstraint("id"),
+    )
+    op.create_index(op.f("ix_product_name"), "product", ["name"], unique=True)
+    op.create_table(
+        "product_collection",
+        sa.Column("id", sa.Integer(), nullable=False),
+        sa.Column("product_id", sa.Integer(), nullable=False),
+        sa.Column("collection_id", sa.Integer(), nullable=False),
+        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["product_id"],
+            ["product.id"],
+        ),
+        sa.ForeignKeyConstraint(
+            ["collection_id"],
+            ["collection.id"],
+        ),
+        sa.PrimaryKeyConstraint("id"),
+    )
+
+def downgrade() -> None:
+    op.drop_table("product_collection")
+    op.drop_index(op.f("ix_product_name"), table_name="product")
+    op.drop_table("product")
+```
+
 ### To start up local dev
 
 * create a virtual env
 * change dir to `backend` and run pip install -r requirement.txt
 * Goto root dir and run `make dev`
+
+### To run backend
+
+```bash
+cd {{cookiecutter.project_name}}/backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+### To run frontend
+
+```bash
+cd {{cookiecutter.project_name}}/frontend
+npm install
+npm run dev
+```
 
 ### To load initial data
 
