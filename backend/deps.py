@@ -36,7 +36,16 @@ def get_auth() -> Generator:
         # Get a reference to the auth service
         yield firebase.auth()
     except Exception as e:
-        print(f"auth init error, ${e}")
+        print(f"auth init error: {e}")
+        try:
+            # get error code
+            error_code = e.args[0].get('error', {}).get('code')
+        except Exception as err:
+            error_code = 500
+        raise HTTPException(
+            status_code=error_code,
+            detail=f"An error occurred while trying to initialize auth, {e}",
+        )
     finally:
         print("auth closed")
 
