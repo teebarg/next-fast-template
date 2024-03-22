@@ -69,8 +69,9 @@ services:
       context: ./frontend
       args:
         - NODE_ENV=development
-      # env_file:
-      #   - ${ENV_FILE:-local.env}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     env_file:
       - .env
 

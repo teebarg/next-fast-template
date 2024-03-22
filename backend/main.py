@@ -1,11 +1,23 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
+from fastapi.routing import APIRoute
+from starlette.middleware.cors import CORSMiddleware
 
 from api.auth import router as auth_router
 from api.users import router as users_router
 from core.config import settings
 
+def custom_generate_unique_id(route: APIRoute) -> str:
+    tag = route.tags[0] if route.tags else ""
+    return f"{tag}-{route.name}"
+
 app = FastAPI(title=settings.PROJECT_NAME)
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    openapi_url="/api/openapi.json",
+    generate_unique_id_function=custom_generate_unique_id,
+)
 
 # Mount the routers under their respective paths
 app.include_router(users_router, prefix="/api/users", tags=["users"])  # Include the user router

@@ -10,7 +10,7 @@ import Logo from "@/public/logo.svg";
 
 const navigation = [
     { name: "Admin", href: "/admin" },
-    { name: "Marketplace", href: "/marketplace" },
+    // { name: "Marketplace", href: "/marketplace" },
     { name: "Blog", href: "https://blog.niyi.com.ng" },
 ];
 
