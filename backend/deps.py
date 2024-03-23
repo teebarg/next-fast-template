@@ -31,7 +31,9 @@ def get_auth() -> Generator:
     try:
         if not firebase_admin._apps:  # Check if the app is not already initialized
             cred = credentials.Certificate(settings.FIREBASE_CRED)
-            firebase_admin.initialize_app(cred, {"storageBucket": settings.STORAGE_BUCKET})
+            firebase_admin.initialize_app(
+                cred, {"storageBucket": settings.STORAGE_BUCKET}
+            )
         firebase = pyrebase.initialize_app(settings.FIREBASE_CONFIG)
 
         # Get a reference to the auth service
@@ -50,7 +52,9 @@ def get_storage() -> Generator:
     try:
         if not firebase_admin._apps:  # Check if the app is not already initialized
             cred = credentials.Certificate(settings.FIREBASE_CRED)
-            firebase_admin.initialize_app(cred, {"storageBucket": settings.STORAGE_BUCKET})
+            firebase_admin.initialize_app(
+                cred, {"storageBucket": settings.STORAGE_BUCKET}
+            )
 
         # Get a reference to the bucket
         yield storage.bucket()
@@ -60,7 +64,9 @@ def get_storage() -> Generator:
         print("storage closed")
 
 
-def get_current_user(db: SessionDep, token: TokenDep, auth2: Any = Depends(get_auth)) -> User:
+def get_current_user(
+    db: SessionDep, token: TokenDep, auth2: Any = Depends(get_auth)
+) -> User:
     try:
         if token is None:
             raise HTTPException(
@@ -105,7 +111,9 @@ def get_current_user(db: SessionDep, token: TokenDep, auth2: Any = Depends(get_a
         )
 
 
-def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
+def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)]
+) -> User:
     if not current_user:
         raise HTTPException(status_code=401, detail="Unauthenticated user")
     if not current_user.is_active:
@@ -114,6 +122,7 @@ def get_current_active_user(current_user: Annotated[User, Depends(get_current_us
 
 
 CurrentUser = Annotated[User, Depends(get_current_active_user)]
+
 
 def get_current_active_superuser(
     current_user: schemas.User = Depends(get_current_user),

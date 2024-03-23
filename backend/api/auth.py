@@ -98,7 +98,9 @@ def login_access_token(
     OAuth2 compatible token login, get an access token for future requests
     """
     try:
-        user = auth.sign_in_with_email_and_password(form_data.username, form_data.password)
+        user = auth.sign_in_with_email_and_password(
+            form_data.username, form_data.password
+        )
         return JSONResponse(
             status_code=200,
             content={
@@ -196,7 +198,9 @@ def get_timestamp() -> int:
     current_datetime = datetime.now()
 
     # Add 1 hour (3600 seconds) to the current datetime.
-    new_datetime = current_datetime + timedelta(seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS)
+    new_datetime = current_datetime + timedelta(
+        seconds=settings.ACCESS_TOKEN_EXPIRE_SECONDS
+    )
 
     # Convert the new datetime to a Unix timestamp (milliseconds since epoch).
     return int(new_datetime.timestamp() * 1000)
