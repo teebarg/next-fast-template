@@ -17,14 +17,18 @@ async function getData() {
     }
 
     if (!ok) {
-        throw new Error("Failed to fetch data");
+        return { error: true };
     }
 
     return data;
 }
 
 export default async function Profile() {
-    const { firstname, lastname, email, is_active } = await getData();
+    const { firstname, lastname, email, is_active, error } = await getData();
+
+    if (error) {
+        return <div>Something went wrong!!!</div>;
+    }
     // @ts-expect-error
     const session = await getServerSession(authOptions);
     const image: string = session?.user?.image || "";

@@ -6,15 +6,17 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./lb.yml:/config.yml:ro
     ports:
-      - 7000:7000
-      - "7001:8080"
+      - 2000:2000
+      - 2001:8080
     # Duplicate the command from docker-compose.yml to add --api.insecure=true
     command:
       - traefik
-      - --entrypoints.dev.address=:7000
+      - --entrypoints.dev.address=:2000
       - --providers.file.filename=/config.yml
       - --api.insecure=true
-      
+      # Enable the Traefik log, for configurations and errors
+      - --log
+
   db:
     image: postgres:12
     restart: always
@@ -58,7 +60,6 @@ services:
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
     platform: linux/amd64 # Patch for M1 Mac
-    command: /start-reload.sh
     volumes:
       - ./backend/:/app
 
@@ -78,10 +79,11 @@ services:
     command: npm run dev
     volumes:
       - ./frontend:/app
-      # - ./frontend/node_modules:/app/node_modules
       - /app/node_modules
+    environment:
+      - NODE_ENV=development
     env_file:
-      - .env
+      - ./frontend/.env
 volumes:
   app-db-data:
 

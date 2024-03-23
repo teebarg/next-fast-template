@@ -39,7 +39,7 @@ target_metadata = SQLModel.metadata
 def get_url():
     user = os.getenv("POSTGRES_USER", "postgres")
     password = os.getenv("POSTGRES_PASSWORD", "")
-    server = os.getenv("POSTGRES_SERVER", "db-niyi")
+    server = os.getenv("POSTGRES_SERVER", "")
     db = os.getenv("POSTGRES_DB", "app")
 
     return f"postgresql://{user}:{password}@{server}/{db}"

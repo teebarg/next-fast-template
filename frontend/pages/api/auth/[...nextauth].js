@@ -36,8 +36,7 @@ async function refreshAccessToken(token) {
     }
 }
 
-// const loginUri = `${process.env.NEXT_PUBLIC_AUTH_API_DOMAIN}/login`;
-const loginUri = `http://backend/auth/login`;
+const loginUri = `${process.env.NEXT_PUBLIC_AUTH_API_DOMAIN}/login`;
 export const authOptions = {
     debug: true,
     providers: [
@@ -49,10 +48,10 @@ export const authOptions = {
                     const res = await fetch(loginUri, {
                         method: "POST",
                         body: JSON.stringify({
-                            email: credentials['email'],
-                            password: credentials['password'],
+                            email: credentials["email"],
+                            password: credentials["password"],
                         }),
-                        headers: { "accept": "application/json", "Content-Type": "application/json" },
+                        headers: { accept: "application/json", "Content-Type": "application/json" },
                     });
                     const user = await res.json();
 

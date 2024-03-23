@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 
 def init() -> None:
     with Session(engine) as session:
-        print(settings)
         if not firebase_admin._apps:  # Check if the app is not already initialized
             cred = credentials.Certificate(settings.FIREBASE_CRED)
             firebase_admin.initialize_app(cred)

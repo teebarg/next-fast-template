@@ -1,5 +1,6 @@
 from typing import Annotated, Any, Generator
 
+import logging
 import firebase_admin
 import pyrebase
 import requests
@@ -36,15 +37,10 @@ def get_auth() -> Generator:
         # Get a reference to the auth service
         yield firebase.auth()
     except Exception as e:
-        print(f"auth init error: {e}")
-        try:
-            # get error code
-            error_code = e.args[0].get('error', {}).get('code')
-        except Exception as err:
-            error_code = 500
+        logging.error(f"An error occurred while trying to initialize auth. Error: {e}")
         raise HTTPException(
-            status_code=error_code,
-            detail=f"An error occurred while trying to initialize auth, {e}",
+            status_code=int(e.status_code) if hasattr(e, "status_code") else status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=e.detail if hasattr(e, "detail") else f"An error occurred while trying to initialize auth, {e}"
         )
     finally:
         print("auth closed")
@@ -76,7 +72,7 @@ def get_current_user(db: SessionDep, token: TokenDep, auth2: Any = Depends(get_a
         if "email" in data:
             if user := crud.get_user_by_email(db=db, email=data["email"]):
                 return user
-        if user := crud.user.get(db=db, id=data["uid"]):
+        elif user := crud.user.get(db=db, id=data["uid"]):
             return user
 
         else:
