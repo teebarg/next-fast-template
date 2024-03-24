@@ -10,7 +10,7 @@ import crud
 import deps
 import schemas
 from core.config import settings
-from models.models import User, UserCreate
+from models.user import User, UserCreate
 
 # Create a router for users
 router = APIRouter()

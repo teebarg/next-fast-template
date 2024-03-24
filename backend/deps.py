@@ -13,7 +13,7 @@ import crud
 import schemas
 from core.config import settings
 from db.engine import engine
-from models.models import User
+from models.user import User
 
 reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login/access-token")
 

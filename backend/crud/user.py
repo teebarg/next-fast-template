@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 import schemas
 from crud.base import CRUDBase
-from models.models import User
+from models.user import User
 
 
 class CRUDUser(CRUDBase[User, schemas.UserCreate, schemas.UserUpdate]):

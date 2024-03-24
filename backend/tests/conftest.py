@@ -9,7 +9,7 @@ from sqlmodel import Session
 from db.engine import engine
 from deps import get_current_user
 from main import app
-from models.models import User
+from models.user import User
 
 
 @pytest.fixture

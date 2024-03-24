@@ -25,7 +25,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-from models.models import SQLModel  # noqa
+from models.user import SQLModel  # noqa
 
 # target_metadata = None
 target_metadata = SQLModel.metadata

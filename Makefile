@@ -33,5 +33,5 @@ frontend-test:
 
 
 # Helpers
-c:
-	@cd scripts && python controller.py run -n $(name)
+scaffold:
+	@cd scripts && python scaffold.py run -n $(name)

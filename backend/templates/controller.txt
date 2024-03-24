@@ -29,7 +29,7 @@ async def index(
     """
     queries = {"name": name}
 
-    {{name}}s = crud.{{name}}.get_multi(db=db, queries=queries, per_page=per_page, offset=page)
+    {{name}}s = crud.{{name}}.get_multi(db=db, queries=queries, per_page=per_page, offset=(page - 1) * per_page)
     return {
         "{{name}}s": {{name}}s,
         "page": page,

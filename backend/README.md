@@ -194,6 +194,12 @@ $ docker compose exec backend bash
 
 * Alembic is already configured to import your SQLModel models from `./backend/models.py`.
 
+- Create Migration Script
+
+```console
+alembic revision -m "create Message table"
+```
+
 * After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
 
 ```console

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query
 
 import crud
 import deps
-from models.models import User
+from models.user import User
 
 # Create a router for users
 router = APIRouter()

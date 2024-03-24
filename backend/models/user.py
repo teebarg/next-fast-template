@@ -25,23 +25,16 @@ class UserCreate(UserBase):
     pass
 
 
-class UserCreateOpen(SQLModel):
-    email: str
-    password: str
-    firstname: Union[str, None] = None
-    lastname: Union[str, None] = None
-
-
 # Properties to receive via API on update, all are optional
 class UserUpdate(UserBase):
     email: Union[str, None] = None
 
 
-# Database model, database table inferred from class name
-class User(UserBase, table=True):
-    id: Union[int, None] = Field(default=None, primary_key=True)
-
-
 # Properties to return via API, id is always required
 class UserOut(UserBase):
     id: int
+
+
+# Database model, database table inferred from class name
+class User(UserBase, table=True):
+    id: Union[int, None] = Field(default=None, primary_key=True)
