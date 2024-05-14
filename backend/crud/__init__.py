@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 import schemas
 from models.user import User
 
-from .user import *
+from .user import user  # noqa: F401
 
 
 # For a new basic set of CRUD operations you could just do

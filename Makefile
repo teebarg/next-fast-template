@@ -43,8 +43,8 @@ lint-frontend:
 	@cd frontend && npm run lint
 
 lint:
-	@$(MAKE) -s lint-frontend
 	@$(MAKE) -s lint-backend
+	@$(MAKE) -s lint-frontend
 
 test-frontend:
 	@echo "$(YELLOW)Running tests for frontend...$(RESET)"

@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import engine_from_config, pool  # noqa E402
 
-from alembic import context
+from alembic import context  # noqa E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
