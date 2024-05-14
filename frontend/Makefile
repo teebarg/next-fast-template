@@ -1,5 +1,5 @@
 # Variables
-PROJECT_SLUG := next-template
+PROJECT_SLUG := next-fast-template
 APP_NAME := $(PROJECT_SLUG)-frontend
 
 # Targets
