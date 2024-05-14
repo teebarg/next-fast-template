@@ -43,7 +43,7 @@ export default function HomeNav() {
                         </Link>
                     ))}
                 </div>
-                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                <div className="hidden lg:flex lg:flex-1 lg:justify-end mr-8">
                     {session ? (
                         <Link href="/admin" className="text-sm font-semibold leading-6 text-gray-900">
                             Dashboard

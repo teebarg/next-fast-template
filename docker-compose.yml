@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   proxy:
     image: traefik:v2.9
@@ -19,12 +18,11 @@ services:
 
   db:
     image: postgres:12
-    restart: always
     networks:
       - traefik-public
       - default
     volumes:
-      - app-db-data:/var/lib/postgresql/data/pgdata
+      - next-fast-data:/var/lib/postgresql/data/pgdata
     env_file:
       - .env
     environment:
@@ -35,18 +33,14 @@ services:
 
   adminer:
     image: adminer
-    restart: always
     networks:
       - traefik-public
       - default
     depends_on:
       - db
-    environment:
-      - ADMINER_DESIGN=pepa-linha-dark
 
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
-    restart: always
     networks:
       - traefik-public
       - default
@@ -66,7 +60,6 @@ services:
 
   frontend:
     image: '${DOCKER_IMAGE_FRONTEND?Variable not set}:${TAG-latest}'
-    restart: always
     networks:
       - traefik-public
       - default
@@ -83,9 +76,9 @@ services:
     environment:
       - NODE_ENV=development
     env_file:
-      - ./frontend/.env
+      - .env
 volumes:
-  app-db-data:
+  next-fast-data:
 
 networks:
   traefik-public:

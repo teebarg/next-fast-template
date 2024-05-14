@@ -1,15 +1,17 @@
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from firebase_admin import auth as firebase_auth
+from sqlmodel import Session
 
 import crud
 import deps
 import schemas
 from core.config import settings
+from core.logging import logger
 from models.user import User, UserCreate
 
 # Create a router for users
@@ -20,7 +22,7 @@ router = APIRouter()
 async def login_for_access_token(
     credentials: schemas.SignIn,
     auth: Any = Depends(deps.get_auth),
-    db=Depends(deps.get_db),
+    db=Annotated[Session, Depends(deps.get_db)],
 ) -> Any:
     """
     User login to get access token (JWT).
@@ -45,9 +47,11 @@ async def login_for_access_token(
         return content
     except Exception as e:
         if "INVALID_LOGIN_CREDENTIALS" in str(e):
-            raise HTTPException(status_code=400, detail="Invalid login credentials")
+            raise HTTPException(
+                status_code=400, detail="Invalid login credentials"
+            ) from e
         else:
-            raise HTTPException(status_code=400, detail="An error occurred")
+            raise HTTPException(status_code=400, detail="An error occurred") from e
 
 
 @router.post("/signup")
@@ -82,11 +86,11 @@ async def sign_up(
         )
     except Exception as e:
         if "EMAIL_EXISTS" in str(e):
-            raise HTTPException(status_code=400, detail="email already exists")
+            raise HTTPException(status_code=400, detail="email already exists") from e
         elif "INVALID_EMAIL" in str(e):
-            raise HTTPException(status_code=400, detail="invalid email")
+            raise HTTPException(status_code=400, detail="invalid email") from e
         else:
-            raise HTTPException(status_code=400, detail="An error occurred")
+            raise HTTPException(status_code=400, detail="An error occurred") from e
 
 
 @router.post("/login/access-token", response_model=schemas.Token)
@@ -112,9 +116,11 @@ def login_access_token(
         )
     except Exception as e:
         if "INVALID_LOGIN_CREDENTIALS" in str(e):
-            raise HTTPException(status_code=400, detail="Incorrect email or password")
+            raise HTTPException(
+                status_code=400, detail="Incorrect email or password"
+            ) from e
         else:
-            raise HTTPException(status_code=400, detail="An error occurred")
+            raise HTTPException(status_code=400, detail="An error occurred") from e
 
 
 @router.post("/logout")
@@ -128,8 +134,8 @@ def logout(current_user: schemas.User = Depends(deps.get_current_user)) -> Any:
             status_code=200,
             content={"message": "User signed out successfully"},
         )
-    except Exception:
-        raise HTTPException(status_code=400, detail="Error signing out user")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error signing out user") from e
 
 
 @router.post("/refresh-token")
@@ -152,8 +158,8 @@ def refresh_token(
                 "token_type": "bearer",
             },
         )
-    except Exception:
-        raise HTTPException(status_code=400, detail="Error refreshing token")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error refreshing token") from e
 
 
 @router.post("/social")
@@ -169,8 +175,12 @@ def social(
     email = credentials.email
 
     def get_token(uid: str) -> str:
-        custom_token = firebase_auth.create_custom_token(uid).decode("utf-8")
-        user = auth.sign_in_with_custom_token(custom_token)
+        try:
+            custom_token = firebase_auth.create_custom_token(uid).decode("utf-8")
+            user = auth.sign_in_with_custom_token(custom_token)
+        except Exception as e:
+            logger.error(f"Error signing in with custom token: {e}")
+
         return {
             "access_token": user["idToken"],
             "refresh_token": user["refreshToken"],
@@ -187,6 +197,7 @@ def social(
         return JSONResponse(status_code=200, content=get_token(str(user.id)))
 
     except Exception as e:
+        logger.error(f"Error creating user: {e}")
         return JSONResponse(
             status_code=400,
             content={"message": "An error occurred", "error": str(e)},

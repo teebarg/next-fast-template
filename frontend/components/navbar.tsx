@@ -16,7 +16,7 @@ export default function Navbar() {
                 </Link>
             </div>
             <div className="flex-none">
-                <div className="dropdown dropdown-end">
+                <div className="dropdown dropdown-end mr-8">
                     <div tabIndex={0} className="flex items-center space-x-1 cursor-pointer">
                         <label className="btn btn-ghost btn-circle avatar">
                             <div className="relative h-10 w-10 rounded-full">

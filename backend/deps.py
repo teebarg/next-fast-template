@@ -1,6 +1,5 @@
 from typing import Annotated, Any, Generator
 
-import logging
 import firebase_admin
 import pyrebase
 import requests
@@ -12,6 +11,7 @@ from sqlmodel import Session
 import crud
 import schemas
 from core.config import settings
+from core.logging import logger
 from db.engine import engine
 from models.user import User
 
@@ -39,13 +39,21 @@ def get_auth() -> Generator:
         # Get a reference to the auth service
         yield firebase.auth()
     except Exception as e:
-        logging.error(f"An error occurred while trying to initialize auth. Error: {e}")
+        logger.error(f"An error occurred while trying to initialize auth. Error: {e}")
         raise HTTPException(
-            status_code=int(e.status_code) if hasattr(e, "status_code") else status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=e.detail if hasattr(e, "detail") else f"An error occurred while trying to initialize auth, {e}"
-        )
+            status_code=(
+                int(e.status_code)
+                if hasattr(e, "status_code")
+                else status.HTTP_500_INTERNAL_SERVER_ERROR
+            ),
+            detail=(
+                e.detail
+                if hasattr(e, "detail")
+                else f"An error occurred while trying to initialize auth, {e}"
+            ),
+        ) from e
     finally:
-        print("auth closed")
+        logger.error("auth closed")
 
 
 def get_storage() -> Generator:
@@ -59,9 +67,9 @@ def get_storage() -> Generator:
         # Get a reference to the bucket
         yield storage.bucket()
     except Exception as e:
-        print(f"storage init error, {e}")
+        logger.error(f"storage init error, {e}")
     finally:
-        print("storage closed")
+        logger.debug("storage closed")
 
 
 def get_current_user(
@@ -87,28 +95,28 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
-        )
+        ) from None
     except Exception as e:
-        print(f"Get current user error, ${e}")
+        logger.error(f"Get current user error, ${e}")
         if "Token expired" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Token expired",
-            )
+            ) from None
         if "Wrong number of segments in token" in str(e):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Provide a valid token",
-            )
+            ) from None
         if "Could not verify token signature." in str(e):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Could not verify token signature.",
-            )
+            ) from None
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"An error occurred while trying to validate credentials, {e}",
-        )
+        ) from None
 
 
 def get_current_active_user(

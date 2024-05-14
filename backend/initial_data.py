@@ -1,15 +1,11 @@
-import logging
-
 import firebase_admin
 from firebase_admin import auth, credentials
 from sqlmodel import Session
 
 from core.config import settings
+from core.logging import logger
 from db.engine import engine
 from db.init_db import init_db
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 def init() -> None:

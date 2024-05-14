@@ -192,7 +192,7 @@ export default function SideBar({ children }: { children: React.ReactNode }) {
                             <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true" />
 
                             {/* Profile dropdown */}
-                            <Menu as="div" className="relative">
+                            <Menu as="div" className="relative mr-8">
                                 <Menu.Button className="-m-1.5 flex items-center p-1.5">
                                     {session?.user?.image ? (
                                         <div className="h-8 w-8 rounded-full bg-gray-50 relative overflow-hidden">

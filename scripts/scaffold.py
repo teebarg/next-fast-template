@@ -5,7 +5,7 @@ Utility Script
 
 import os
 import re
-import logging
+from core.logging import logger
 
 import click
 
@@ -45,7 +45,7 @@ def run(ctx, name: str) -> None:
             directory = '../backend/schemas'
             template_path = '../backend/templates/schema.txt'
         else:
-            logging.error("Invalid type")
+            logger.error("Invalid type")
             continue
         try:
             # Create the directory if it doesn't exist
@@ -59,7 +59,7 @@ def run(ctx, name: str) -> None:
 
             # Check if the file already exists
             if os.path.exists(file_path):
-                logging.error(f"File '{file_name}' already exists in '{directory}'. Please choose a different name.")
+                logger.error(f"File '{file_name}' already exists in '{directory}'. Please choose a different name.")
                 continue
 
             # Read the template content from the specified file
@@ -74,10 +74,10 @@ def run(ctx, name: str) -> None:
             with open(file_path, 'w') as new_file:
                 new_file.write(template_content)
 
-            logging.info(f"File '{file_name}' created successfully in '{directory}' using the template '{template_path}'.")
+            logger.info(f"File '{file_name}' created successfully in '{directory}' using the template '{template_path}'.")
 
         except Exception as e:
-            logging.error(f"An error occurred: {e}")
+            logger.error(f"An error occurred: {e}")
 
 
 if __name__ == '__main__':

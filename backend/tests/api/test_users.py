@@ -1,9 +1,5 @@
 from fastapi.testclient import TestClient
 
-from backend.main import app
-
-client = TestClient(app)
-
 
 class TestUser:
     def test_read_user_me(

@@ -36,7 +36,6 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_LASTNAME: str
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
-    USERS_OPEN_REGISTRATION: bool = False
 
     model_config = SettingsConfigDict(env_file=".env")
 

@@ -2,7 +2,7 @@ from typing import Union
 
 from pydantic import EmailStr
 from sqlalchemy import String
-from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel import Column, Field, SQLModel
 
 from models.base import BaseModel
 
@@ -38,3 +38,10 @@ class UserOut(UserBase):
 # Database model, database table inferred from class name
 class User(UserBase, table=True):
     id: Union[int, None] = Field(default=None, primary_key=True)
+
+
+class UserCreateOpen(SQLModel):
+    email: str
+    password: str
+    firstname: Union[str, None] = None
+    lastname: Union[str, None] = None

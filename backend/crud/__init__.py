@@ -6,11 +6,10 @@ from sqlmodel import Session, select
 import schemas
 from models.user import User
 
-from .user import user
+from .user import *
+
 
 # For a new basic set of CRUD operations you could just do
-
-
 def get_user_by_email(*, db: Session, email: str) -> User | None:
     statement = select(User).where(User.email == email)
     return db.exec(statement).first()

@@ -11,4 +11,4 @@ dev:
 
 format:
 	black .
-	ruff --fix .
+	ruff check --fix .
