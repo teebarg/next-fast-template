@@ -14,14 +14,14 @@ RESET=$(shell tput -Txterm sgr0)
 
 ## Start local development environment
 startTest:
-	docker compose -p next-fast-template --env-file .env up --build
+	docker compose -p $(PROJECT_SLUG) --env-file .env up --build
 
 # This target can be used in a separate terminal to update any containers after a change in config without restarting (environment variables, requirements.txt, etc)
 updateTest:  ## Update test environment containers (eg: after config changes)
-	docker compose -p next-fast-template -f docker-compose.yml up --build -d
+	docker compose -p $(PROJECT_SLUG) -f docker-compose.yml up --build -d
 
 stopTest: ## Stop test development environment
-	@COMPOSE_PROJECT_NAME=next-fast-template docker compose down
+	@COMPOSE_PROJECT_NAME=$(PROJECT_SLUG) docker compose down
 
 # Backend Deployment
 build:

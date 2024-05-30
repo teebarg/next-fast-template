@@ -4,9 +4,10 @@ import { useState } from "react";
 import { SignInResponse, signIn } from "next-auth/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Alert from "@/components/core/Alert";
-import { TextField } from "@/components/core/Fields";
+import { TextField, PasswordField } from "@/components/core/Fields";
 import Google from "@/public/google.svg";
 import Image from "next/image";
+import { Button, Divider } from "@nextui-org/react";
 
 type Inputs = {
     email: string;
@@ -57,33 +58,43 @@ export default function LoginForm() {
                 <TextField
                     name="email"
                     label="Email"
-                    type="text"
+                    type="email"
                     placeholder="Ex. email@email.com"
                     register={register}
                     error={errors?.email}
-                    rules={{ required: true }}
+                    rules={{ required: true, email: true }}
+                    isClearable
                 />
             </div>
             <div>
-                <TextField
+                <PasswordField
                     name="password"
                     label="Password"
-                    type="password"
-                    placeholder="Type password here....."
                     register={register}
                     error={errors?.password}
-                    rules={{ required: true }}
+                    rules={{ required: true, minLength: 8 }}
                 />
             </div>
-            <button type="submit" className="btn btn-primary w-full">
-                {loading && <span className="loading loading-spinner"></span>}
-                {loading ? "Loading" : "Submit"}
-            </button>
-            <div className="divider">OR</div>
-            <button type="button" className="btn w-full" onClick={() => signIn("google")}>
-                <Image src={Google} alt="Google" className="w-8" />
+            {loading ? (
+                <Button color="primary" isLoading size="lg" fullWidth type="submit">
+                    Loading
+                </Button>
+            ) : (
+                <Button color="primary" variant="shadow" size="lg" fullWidth type="submit">
+                    Submit
+                </Button>
+            )}
+            <Divider className="my-4" />
+            <Button
+                className="w-full"
+                color="primary"
+                size="lg"
+                variant="flat"
+                startContent={<Image src={Google} alt="Google" className="w-6" />}
+                onPress={() => signIn("google")}
+            >
                 Sign in with Google
-            </button>
+            </Button>
             {error && (
                 <Alert type="alert" delay={5000} onClose={() => setError(false)}>
                     <p>{errorMessage}</p>

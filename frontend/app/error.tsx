@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { BookmarkSquareIcon, BookOpenIcon, QueueListIcon, RssIcon } from "@heroicons/react/24/solid";
 import HomeNav from "@/components/home/Nav";
@@ -22,7 +23,12 @@ const links = [
     { name: "Blog", href: "#", description: "Read our latest news and articles.", icon: RssIcon },
 ];
 
-export default function Error() {
+export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+    useEffect(() => {
+        // Log the error to an error reporting service
+        /* eslint-disable no-console */
+        console.error(error);
+    }, [error]);
     return (
         <div className="bg-white">
             <HomeNav />
@@ -33,6 +39,14 @@ export default function Error() {
                     <p className="mt-4 text-base leading-7 text-gray-600 sm:mt-6 sm:text-lg sm:leading-8">
                         Sorry, we couldn’t find the page you’re looking for.
                     </p>
+                    <button
+                        onClick={
+                            // Attempt to recover by trying to re-render the segment
+                            () => reset()
+                        }
+                    >
+                        Try again
+                    </button>
                 </div>
                 <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
                     <h2 className="sr-only">Popular pages</h2>

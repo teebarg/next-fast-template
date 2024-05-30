@@ -4,7 +4,8 @@ import { useState, useRef } from "react";
 import { SignInResponse, signIn } from "next-auth/react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Alert from "@/components/core/Alert";
-import { TextField } from "@/components/core/Fields";
+import { TextField, PasswordField } from "@/components/core/Fields";
+import { Button } from "@nextui-org/react";
 
 type Inputs = {
     firstname: string;
@@ -93,7 +94,7 @@ export default function SignUpForm() {
                         autoComplete="family-name"
                         register={register}
                         error={errors.lastname}
-                        rules={{ required: "Please enter your lastname" }}
+                        rules={{ required: true }}
                     />
                 </div>
                 <div className="sm:col-span-3">
@@ -116,23 +117,23 @@ export default function SignUpForm() {
                         placeholder="Ex. 09000000000"
                         register={register}
                         error={errors.phone}
-                        rules={{ min: 11, max: 11 }}
+                        rules={{ minLength: 11, maxLength: 11 }}
                     />
                 </div>
                 <div className="sm:col-span-3">
-                    <TextField
+                    <PasswordField
                         name="password"
                         label="Password"
                         type="password"
                         placeholder="Type password here....."
                         register={register}
                         error={errors.password}
-                        rules={{ required: "You must specify a password", min: 6 }}
+                        rules={{ required: true, minLength: 6 }}
                     />
                 </div>
 
                 <div className="sm:col-span-3">
-                    <TextField
+                    <PasswordField
                         name="confirmPassword"
                         label="Password"
                         type="password"
@@ -143,10 +144,15 @@ export default function SignUpForm() {
                     />
                 </div>
                 <div className="sm:col-span-3">
-                    <button type="submit" className="btn btn-primary w-full">
-                        {loading && <span className="loading loading-spinner"></span>}
-                        {loading ? "Loading" : "Submit"}
-                    </button>
+                    {loading ? (
+                        <Button color="primary" isLoading size="lg" fullWidth>
+                            Loading
+                        </Button>
+                    ) : (
+                        <Button color="primary" variant="shadow" size="lg" fullWidth type="submit">
+                            Submit
+                        </Button>
+                    )}
                 </div>
             </div>
             {error && (

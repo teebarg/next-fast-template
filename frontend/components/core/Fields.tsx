@@ -1,6 +1,8 @@
 import React, { useId } from "react";
 import { Controller, UseFormRegister } from "react-hook-form";
 import Select from "react-select";
+import { Input } from "@nextui-org/input";
+import { EyeSlashFilledIcon, EyeFilledIcon } from "@/components/icons";
 
 const formClasses = "input input-bordered w-full form-fix";
 
@@ -19,9 +21,10 @@ type RulesProps = {
     max?: number;
     minLength?: number;
     maxLength?: number;
-    required?: boolean | string;
+    required?: boolean;
     email?: boolean;
     confirmPassword?: {};
+    pattern?: RegExp;
 };
 
 type FieldProps = {
@@ -36,14 +39,19 @@ type FieldProps = {
 
 type Rules = {
     required?: boolean | string;
+    min?: {
+        value: number;
+        message: string;
+    };
+    max?: {
+        value: number;
+        message: string;
+    };
     minLength?: {
         value: number;
         message: string;
     };
-    maxLength?: {
-        value: number;
-        message: string;
-    };
+    maxLength?: { value: number; message: string };
     pattern?: {
         value: RegExp;
         message: string;
@@ -52,26 +60,40 @@ type Rules = {
     validate?: (value: {}) => boolean | string;
 };
 
-export function TextField({ name, label, type = "text", className, register, rules, error, ...props }: FieldProps) {
+export function TextField({ name, label, type = "text", className, defaultValue, register, rules, error, ...props }: FieldProps) {
     let id = useId();
     const formRules: Rules = {};
-    const { min, max, email, confirmPassword, required } = rules || {};
+    const { min, max, minLength, maxLength, email, required, pattern } = rules || {};
 
     if (required) {
         formRules["required"] = typeof required === "boolean" ? `${label} is required` : required;
     }
 
     if (min) {
-        formRules["minLength"] = {
+        formRules["min"] = {
             value: min,
-            message: `${label} must have a minimum of ${min} characters`,
+            message: `The value of ${label} must be greater than or equal to ${min}`,
         };
     }
 
     if (max) {
-        formRules["maxLength"] = {
+        formRules["max"] = {
             value: max,
-            message: `${label} must have a minimum of ${max} characters`,
+            message: `The value of ${label} must be less than or equal to ${max}`,
+        };
+    }
+
+    if (minLength) {
+        formRules["minLength"] = {
+            value: minLength,
+            message: `${label} must have a minimum of ${minLength} characters`,
+        };
+    }
+
+    if (maxLength) {
+        formRules["maxLength"] = {
+            value: maxLength,
+            message: `${label} must have a minimum of ${maxLength} characters`,
         };
     }
 
@@ -82,16 +104,28 @@ export function TextField({ name, label, type = "text", className, register, rul
         };
     }
 
-    if (confirmPassword) {
-        formRules["validate"] = (value: {}) => value === confirmPassword || "Passwords do not match";
+    if (pattern) {
+        formRules["pattern"] = {
+            value: pattern,
+            message: "The value entered does not match the required pattern",
+        };
     }
 
     return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
-            <input id={id} type={type} {...props} className={formClasses} {...register(name, formRules)} />
-            {error && <span className="text-xs text-red-400">{error.message}</span>}
-        </div>
+        <Input
+            isClearable
+            isRequired={required}
+            id={id}
+            type={type}
+            label={label}
+            {...props}
+            defaultValue={defaultValue}
+            className={formClasses}
+            {...register(name, formRules)}
+            isInvalid={error}
+            errorMessage={error?.message}
+            onClear={() => console.log("input cleared")}
+        />
     );
 }
 
@@ -189,5 +223,66 @@ export function TextAreaField({ name, register, rules, error, handleClick, loadi
                 )}
             </div>
         </div>
+    );
+}
+
+export function PasswordField({ name, label, type = "text", className, defaultValue, register, rules, error, ...props }: FieldProps) {
+    const [isVisible, setIsVisible] = React.useState(false);
+
+    const toggleVisibility = () => setIsVisible(!isVisible);
+    let id = useId();
+    const formRules: Rules = {};
+    const { minLength, maxLength, confirmPassword, required, pattern } = rules || {};
+
+    if (required) {
+        formRules["required"] = typeof required === "boolean" ? `${label} is required` : required;
+    }
+
+    if (minLength) {
+        formRules["minLength"] = {
+            value: minLength,
+            message: `${label} must have a minimum of ${minLength} characters`,
+        };
+    }
+
+    if (maxLength) {
+        formRules["maxLength"] = {
+            value: maxLength,
+            message: `${label} must have a minimum of ${maxLength} characters`,
+        };
+    }
+
+    if (confirmPassword) {
+        formRules["validate"] = (value: {}) => value === confirmPassword || "Passwords do not match";
+    }
+
+    if (pattern) {
+        formRules["pattern"] = {
+            value: pattern,
+            message: "The value entered does not match the required pattern",
+        };
+    }
+
+    return (
+        <Input
+            isRequired={required}
+            id={id}
+            type={isVisible ? "text" : "password"}
+            label={label}
+            className={formClasses}
+            {...register(name, formRules)}
+            isInvalid={error}
+            errorMessage={error?.message}
+            endContent={
+                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                    {isVisible ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    )}
+                </button>
+            }
+            {...props}
+        />
     );
 }
