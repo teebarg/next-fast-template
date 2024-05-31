@@ -2,11 +2,24 @@
 
 import { TableProps } from "@/lib/types";
 import NextTable from "@/components/core/NextTable";
-import React from "react";
+import React, { useCallback } from "react";
 import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem, Chip, Badge, Avatar, Tooltip } from "@nextui-org/react";
 import { VerticalDotsIcon, CheckIcon, EyeIcon, EditIcon, DeleteIcon } from "@/components/icons";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-export default function RowRender({ rows = [], pagination }: { rows: TableProps["rows"]; pagination: TableProps["pagination"] }) {
+export default function RowRender({
+    rows = [],
+    pagination,
+    query,
+}: {
+    rows: TableProps["rows"];
+    pagination: TableProps["pagination"];
+    query: string;
+}) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const columns = [
         { name: "AVATAR", uid: "avatar" },
         { name: "NAME", uid: "name", sortable: true },
@@ -16,6 +29,20 @@ export default function RowRender({ rows = [], pagination }: { rows: TableProps[
         { name: "CREATED_AT", uid: "create" },
         { name: "ACTIONS", uid: "actions" },
     ];
+
+    const createQueryString = useCallback(
+        (name: string, value: string) => {
+            const params = new URLSearchParams(searchParams?.toString());
+            params.set(name, value);
+
+            return params.toString();
+        },
+        [searchParams]
+    );
+
+    const onSearchChange = (value: string) => {
+        router.push(pathname + "?" + createQueryString("name", value));
+    };
 
     const rowRender = (user: any, columnKey: string | number) => {
         const cellValue = user[columnKey];
@@ -94,5 +121,14 @@ export default function RowRender({ rows = [], pagination }: { rows: TableProps[
         }
     };
 
-    return <NextTable callbackFunction={rowRender} columns={columns} rows={rows} pagination={pagination}></NextTable>;
+    return (
+        <NextTable
+            callbackFunction={rowRender}
+            onSearchChange={onSearchChange}
+            columns={columns}
+            rows={rows}
+            pagination={pagination}
+            query={query}
+        ></NextTable>
+    );
 }

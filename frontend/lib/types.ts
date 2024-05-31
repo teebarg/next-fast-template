@@ -30,8 +30,9 @@ type TableProps = {
     columns: Column[];
     rows?: { [key: string]: any }[];
     pagination?: Pagination;
-    statusOptions?: Column[];
     callbackFunction: (user: any, columnKey: string | number) => ReactNode;
+    onSearchChange: (value: string) => void;
+    query: string;
 };
 
 export type { User, Pagination, TableProps, Column };

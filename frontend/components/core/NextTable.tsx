@@ -21,81 +21,67 @@ import {
 import { PlusIcon, SearchIcon, ChevronDownIcon } from "@/components/icons";
 import { capitalize } from "@/lib/utils";
 import { Column, TableProps } from "@/lib/types";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-export default function NextTable({
-    rows = [],
-    columns = [],
-    callbackFunction,
-    statusOptions = [{ name: "Active", uid: "active" }],
-    pagination,
-}: TableProps) {
-    console.log("🚀 ~ rows:", rows);
+export default function NextTable({ rows = [], columns = [], callbackFunction, onSearchChange, pagination, query }: TableProps) {
     type Model = (typeof rows)[0];
 
-    const [filterValue, setFilterValue] = React.useState("");
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set([...columns.map((column) => column.uid.toString())]));
-    const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
     const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
         column: "name",
         direction: "ascending",
     });
     const page = pagination?.page ?? 1;
 
-    const hasSearchFilter = Boolean(filterValue);
-
     const headerColumns = React.useMemo(() => {
         return columns.filter((column: Column) => Array.from(visibleColumns).includes(column.uid));
     }, [visibleColumns, columns]);
 
-    const filteredItems = React.useMemo(() => {
-        let filteredUsers = [...rows];
-
-        if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((user: Model) => user?.firstname?.toLowerCase().includes(filterValue.toLowerCase()));
-        }
-        if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredUsers = filteredUsers.filter((user: Model) => Array.from(statusFilter).includes(user.status));
-        }
-
-        return filteredUsers;
-    }, [rows, filterValue, statusFilter, hasSearchFilter]);
-
     const sortedItems = React.useMemo(() => {
-        return [...filteredItems].sort((a: Model, b: Model) => {
+        return [...rows].sort((a: Model, b: Model) => {
             const first = a[sortDescriptor.column as keyof Model] as number;
             const second = b[sortDescriptor.column as keyof Model] as number;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
-    }, [sortDescriptor, filteredItems]);
+    }, [sortDescriptor, rows]);
 
-    const renderCell = React.useCallback(callbackFunction, []);
+    const renderCell = React.useCallback(callbackFunction, [callbackFunction]);
+
+    const createQueryString = React.useCallback(
+        (name: string, value: string) => {
+            const params = new URLSearchParams(searchParams?.toString());
+            params.set(name, value);
+
+            return params.toString();
+        },
+        [searchParams]
+    );
 
     const onNextPage = React.useCallback(() => {
-        if (page < (pagination?.total_pages ?? 1)) {
-            // setPage(page + 1);
-        }
-    }, [page, pagination?.total_pages]);
+        router.push(pathname + "?" + createQueryString("page", `${page + 1}`));
+    }, [page, createQueryString, pathname, router]);
 
     const onPreviousPage = React.useCallback(() => {
-        if (page > 1) {
-            // setPage(page - 1);
-        }
-    }, [page]);
+        router.push(pathname + "?" + createQueryString("page", `${page - 1}`));
+    }, [page, createQueryString, pathname, router]);
 
-    const onSearchChange = React.useCallback((value?: string) => {
-        if (value) {
-            setFilterValue(value);
-        } else {
-            setFilterValue("");
-        }
-    }, []);
+    const onPageChange = React.useCallback(
+        (page: number) => {
+            router.push(pathname + "?" + createQueryString("page", page.toString()));
+        },
+        [createQueryString, pathname, router]
+    );
 
     const onClear = React.useCallback(() => {
-        setFilterValue("");
-    }, []);
+        onSearchChange("");
+    }, [onSearchChange]);
 
     const topContent = React.useMemo(() => {
         return (
@@ -109,33 +95,12 @@ export default function NextTable({
                         }}
                         placeholder="Search by name..."
                         startContent={<SearchIcon className="text-default-300" />}
-                        value={filterValue}
+                        value={query}
                         variant="bordered"
                         onClear={() => onClear()}
                         onValueChange={onSearchChange}
                     />
                     <div className="flex gap-3">
-                        <Dropdown>
-                            <DropdownTrigger className="hidden sm:flex">
-                                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
-                                    Status
-                                </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu
-                                disallowEmptySelection
-                                aria-label="Table Columns"
-                                closeOnSelect={false}
-                                selectedKeys={statusFilter}
-                                selectionMode="multiple"
-                                onSelectionChange={setStatusFilter}
-                            >
-                                {statusOptions.map((status) => (
-                                    <DropdownItem key={status.uid} className="capitalize">
-                                        {capitalize(status.name)}
-                                    </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                        </Dropdown>
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
@@ -167,13 +132,13 @@ export default function NextTable({
                 </div>
             </div>
         );
-    }, [filterValue, statusFilter, visibleColumns, rows.length, onSearchChange, hasSearchFilter]);
+    }, [visibleColumns, onSearchChange, columns, query, onClear, pagination?.total_count]);
 
     const bottomContent = React.useMemo(() => {
         return (
             <div className="py-2 px-2 flex justify-between items-center">
                 <span className="w-[30%] text-small text-default-400">
-                    {selectedKeys === "all" ? "All items selected" : `${selectedKeys.size} of ${filteredItems.length} selected`}
+                    {selectedKeys === "all" ? "All items selected" : `${selectedKeys.size} of ${rows.length} selected`}
                 </span>
                 <Pagination
                     showControls
@@ -181,23 +146,28 @@ export default function NextTable({
                         cursor: "bg-foreground text-background",
                     }}
                     color="default"
-                    isDisabled={hasSearchFilter}
+                    isDisabled={false}
                     page={page}
                     total={pagination?.total_pages ?? 1}
                     variant="light"
-                    onChange={console.log}
+                    onChange={onPageChange}
                 />
                 <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                    <Button isDisabled={pagination?.total_pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+                    <Button isDisabled={pagination?.total_pages === 1 || page == 1} size="sm" variant="flat" onPress={onPreviousPage}>
                         Previous
                     </Button>
-                    <Button isDisabled={pagination?.total_pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+                    <Button
+                        isDisabled={pagination?.total_pages === 1 || page == pagination?.total_pages}
+                        size="sm"
+                        variant="flat"
+                        onPress={onNextPage}
+                    >
                         Next
                     </Button>
                 </div>
             </div>
         );
-    }, [selectedKeys, page, hasSearchFilter]);
+    }, [selectedKeys, page, rows.length, pagination?.total_pages, onPageChange, onNextPage, onPreviousPage]);
 
     return (
         <Table

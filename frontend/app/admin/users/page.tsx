@@ -8,8 +8,8 @@ export const metadata = {
     description: "Shopit admin starter template built with Tailwind CSS and Next.js.",
 };
 
-async function getData(page: string = "1", per_page: string = "10") {
-    const { ok, status, data } = await GET(`/users/?page=${page}&per_page=${per_page}`, "users");
+async function getData(page: string = "1", per_page: string = "1", name: string = "") {
+    const { ok, status, data } = await GET(`/users/?page=${page}&per_page=${per_page}&name=${name}`, "users");
 
     if ([401, 403].includes(status)) {
         redirect("/logout");
@@ -22,8 +22,8 @@ async function getData(page: string = "1", per_page: string = "10") {
     return data;
 }
 
-export default async function Users({ searchParams }: { searchParams: { page: string; per_page: string } }) {
-    const { users, ...pag } = await getData(searchParams.page, searchParams.per_page);
+export default async function Users({ searchParams }: { searchParams: { page: string; per_page: string; name: string } }) {
+    const { users, ...pag } = await getData(searchParams.page, searchParams.per_page, searchParams.name);
 
     if (users?.length === 0) {
         return <div className="px-6 py-8 rounded-md">No Users!</div>;
@@ -33,7 +33,7 @@ export default async function Users({ searchParams }: { searchParams: { page: st
         <div className="py-2">
             <div>
                 <h2 className="text-base font-semibold font-display my-4">Users</h2>
-                {users.length > 0 && <RowRender rows={users} pagination={pag}></RowRender>}
+                {users.length > 0 && <RowRender rows={users} pagination={pag} query={searchParams.name}></RowRender>}
             </div>
         </div>
     );

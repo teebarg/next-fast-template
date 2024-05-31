@@ -5,7 +5,7 @@ import Navbar from "@/components/home/navbar";
 
 export default async function Home() {
     return (
-        <main className="">
+        <main>
             <Navbar />
             <HomeComponent />
             <Footer />

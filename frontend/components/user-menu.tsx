@@ -26,10 +26,16 @@ export default function UserDropDown() {
                     <p className="font-bold">Signed in as</p>
                     <p className="font-bold">@{session?.user?.email}</p>
                 </DropdownItem>
+
                 <DropdownItem key="admin">
                     <NextLink href="/admin">Admin</NextLink>
                 </DropdownItem>
-                <DropdownItem key="settings">My Settings</DropdownItem>
+                <DropdownItem key="profile">
+                    <NextLink href="/profile">Profile</NextLink>
+                </DropdownItem>
+                <DropdownItem key="settings">
+                    <NextLink href="/admin/settings">Settings</NextLink>
+                </DropdownItem>
                 <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
                 <DropdownItem onClick={() => signOut()} key="logout" color="danger">
                     Log Out
