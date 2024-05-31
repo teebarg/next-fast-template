@@ -1,3 +1,7 @@
+/* eslint-disable */
+
+import { ReactNode } from "react";
+
 type User = {
     id: number;
     firstname: string;
@@ -16,4 +20,18 @@ type Pagination = {
     total_pages: number;
 };
 
-export type { User, Pagination };
+type Column = {
+    name: string;
+    uid: string | number;
+    sortable?: boolean;
+};
+
+type TableProps = {
+    columns: Column[];
+    rows?: { [key: string]: any }[];
+    pagination?: Pagination;
+    statusOptions?: Column[];
+    callbackFunction: (user: any, columnKey: string | number) => ReactNode;
+};
+
+export type { User, Pagination, TableProps, Column };

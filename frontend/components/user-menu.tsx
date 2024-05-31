@@ -8,7 +8,6 @@ import NextLink from "next/link";
 export default function UserDropDown() {
     const { data: session } = useSession();
     return (
-        // <div className="flex items-center">
         <Dropdown placement="bottom-start">
             <DropdownTrigger>
                 <User
@@ -18,7 +17,7 @@ export default function UserDropDown() {
                         src: session?.user?.image || "https://i.pravatar.cc/150?u=a042581f4e29026024d",
                     }}
                     className="transition-transform"
-                    description={`@${session?.user?.email}`}
+                    description={session?.user?.email}
                     name={session?.user?.name}
                 />
             </DropdownTrigger>
@@ -37,6 +36,5 @@ export default function UserDropDown() {
                 </DropdownItem>
             </DropdownMenu>
         </Dropdown>
-        // </div>
     );
 }

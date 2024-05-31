@@ -13,12 +13,9 @@ import { ThemeSwitch } from "@/components/theme-switch";
 import { TwitterIcon, GithubIcon, SearchIcon, Logo } from "@/components/icons";
 import UserDropDown from "@/components/user-menu";
 import { useSession } from "next-auth/react";
-// import Logo from "@/public/logo.svg";
-// import Image from "next/image";
 
 const Navbar = () => {
     const { data: session } = useSession();
-    console.log("🚀 ~ Navbar ~ session:", session);
     const searchInput = (
         <Input
             aria-label="Search"
