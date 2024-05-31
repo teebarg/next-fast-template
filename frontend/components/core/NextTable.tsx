@@ -1,6 +1,8 @@
 "use client";
+/* eslint-disable */
+// @ts-nocheck
 
-import React from "react";
+import React, { Key, ReactNode } from "react";
 import {
     Table,
     TableHeader,
@@ -19,8 +21,9 @@ import {
     Pagination,
 } from "@nextui-org/react";
 import { PlusIcon, VerticalDotsIcon, SearchIcon, ChevronDownIcon } from "@/components/icons";
-import { columns, users, statusOptions } from "./data";
+import { users, statusOptions } from "./data";
 import { capitalize } from "@/lib/utils";
+import { Pagination as Pag } from "@/lib/types";
 
 const statusColorMap = {
     active: "success",
@@ -29,8 +32,19 @@ const statusColorMap = {
 };
 
 const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
+type Column = {
+    name: string;
+    uid: Key;
+    sortable?: boolean;
+};
 
-export default function NextTable() {
+type TableProps = {
+    columns: Column[];
+    rows?: (string | ReactNode)[][];
+    pagination?: Pag;
+};
+
+export default function NextTable({ columns = [] }: TableProps) {
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -41,8 +55,6 @@ export default function NextTable() {
         direction: "ascending",
     });
     const [page, setPage] = React.useState(1);
-
-    const pages = Math.ceil(users.length / rowsPerPage);
 
     const hasSearchFilter = Boolean(filterValue);
 
@@ -64,6 +76,8 @@ export default function NextTable() {
 
         return filteredUsers;
     }, [users, filterValue, statusFilter]);
+
+    const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
     const items = React.useMemo(() => {
         const start = (page - 1) * rowsPerPage;
@@ -88,14 +102,7 @@ export default function NextTable() {
         switch (columnKey) {
             case "name":
                 return (
-                    <User
-                        avatarProps={{ radius: "full", size: "sm", src: user.avatar }}
-                        classNames={{
-                            description: "text-default-500",
-                        }}
-                        description={user.email}
-                        name={cellValue}
-                    >
+                    <User avatarProps={{ radius: "lg", src: user.avatar }} description={user.email} name={cellValue}>
                         {user.email}
                     </User>
                 );
@@ -103,22 +110,22 @@ export default function NextTable() {
                 return (
                     <div className="flex flex-col">
                         <p className="text-bold text-small capitalize">{cellValue}</p>
-                        <p className="text-bold text-tiny capitalize text-default-500">{user.team}</p>
+                        <p className="text-bold text-tiny capitalize text-default-400">{user.team}</p>
                     </div>
                 );
             case "status":
                 return (
-                    <Chip className="capitalize border-none gap-1 text-default-600" color={statusColorMap[user.status]} size="sm" variant="dot">
+                    <Chip className="capitalize" color={statusColorMap[user.status]} size="sm" variant="flat">
                         {cellValue}
                     </Chip>
                 );
             case "actions":
                 return (
                     <div className="relative flex justify-end items-center gap-2">
-                        <Dropdown className="bg-background border-1 border-default-200">
+                        <Dropdown>
                             <DropdownTrigger>
-                                <Button isIconOnly radius="full" size="sm" variant="light">
-                                    <VerticalDotsIcon className="text-default-400" />
+                                <Button isIconOnly size="sm" variant="light">
+                                    <VerticalDotsIcon className="text-default-300" />
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
@@ -134,6 +141,18 @@ export default function NextTable() {
         }
     }, []);
 
+    const onNextPage = React.useCallback(() => {
+        if (page < pages) {
+            setPage(page + 1);
+        }
+    }, [page, pages]);
+
+    const onPreviousPage = React.useCallback(() => {
+        if (page > 1) {
+            setPage(page - 1);
+        }
+    }, [page]);
+
     const onRowsPerPageChange = React.useCallback((e) => {
         setRowsPerPage(Number(e.target.value));
         setPage(1);
@@ -148,28 +167,28 @@ export default function NextTable() {
         }
     }, []);
 
+    const onClear = React.useCallback(() => {
+        setFilterValue("");
+        setPage(1);
+    }, []);
+
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between gap-3 items-end">
                     <Input
                         isClearable
-                        classNames={{
-                            base: "w-full sm:max-w-[44%]",
-                            inputWrapper: "border-1",
-                        }}
+                        className="w-full sm:max-w-[44%]"
                         placeholder="Search by name..."
-                        size="sm"
-                        startContent={<SearchIcon className="text-default-300" />}
+                        startContent={<SearchIcon />}
                         value={filterValue}
-                        variant="bordered"
-                        onClear={() => setFilterValue("")}
+                        onClear={() => onClear()}
                         onValueChange={onSearchChange}
                     />
                     <div className="flex gap-3">
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
-                                <Button endContent={<ChevronDownIcon className="text-small" />} size="sm" variant="flat">
+                                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                                     Status
                                 </Button>
                             </DropdownTrigger>
@@ -190,7 +209,7 @@ export default function NextTable() {
                         </Dropdown>
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
-                                <Button endContent={<ChevronDownIcon className="text-small" />} size="sm" variant="flat">
+                                <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                                     Columns
                                 </Button>
                             </DropdownTrigger>
@@ -209,7 +228,7 @@ export default function NextTable() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button className="bg-foreground text-background" endContent={<PlusIcon />} size="sm">
+                        <Button color="primary" endContent={<PlusIcon />}>
                             Add New
                         </Button>
                     </div>
@@ -227,62 +246,36 @@ export default function NextTable() {
                 </div>
             </div>
         );
-    }, [filterValue, statusFilter, visibleColumns, onSearchChange, onRowsPerPageChange, users.length, hasSearchFilter]);
+    }, [filterValue, statusFilter, visibleColumns, onRowsPerPageChange, users.length, onSearchChange, hasSearchFilter]);
 
     const bottomContent = React.useMemo(() => {
         return (
             <div className="py-2 px-2 flex justify-between items-center">
-                <Pagination
-                    showControls
-                    classNames={{
-                        cursor: "bg-foreground text-background",
-                    }}
-                    color="default"
-                    isDisabled={hasSearchFilter}
-                    page={page}
-                    total={pages}
-                    variant="light"
-                    onChange={setPage}
-                />
-                <span className="text-small text-default-400">
-                    {selectedKeys === "all" ? "All items selected" : `${selectedKeys.size} of ${items.length} selected`}
+                <span className="w-[30%] text-small text-default-400">
+                    {selectedKeys === "all" ? "All items selected" : `${selectedKeys.size} of ${filteredItems.length} selected`}
                 </span>
+                <Pagination isCompact showControls showShadow color="primary" page={page} total={pages} onChange={setPage} />
+                <div className="hidden sm:flex w-[30%] justify-end gap-2">
+                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+                        Previous
+                    </Button>
+                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+                        Next
+                    </Button>
+                </div>
             </div>
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-    const classNames = React.useMemo(
-        () => ({
-            wrapper: ["max-h-[382px]", "max-w-3xl"],
-            th: ["bg-transparent", "text-default-500", "border-b", "border-divider"],
-            td: [
-                // changing the rows border radius
-                // first
-                "group-data-[first=true]:first:before:rounded-none",
-                "group-data-[first=true]:last:before:rounded-none",
-                // middle
-                "group-data-[middle=true]:before:rounded-none",
-                // last
-                "group-data-[last=true]:first:before:rounded-none",
-                "group-data-[last=true]:last:before:rounded-none",
-            ],
-        }),
-        []
-    );
-
     return (
         <Table
-            isCompact
-            removeWrapper
             aria-label="Example table with custom cells, pagination and sorting"
+            isHeaderSticky
             bottomContent={bottomContent}
             bottomContentPlacement="outside"
-            checkboxesProps={{
-                classNames: {
-                    wrapper: "after:bg-foreground after:text-background text-background",
-                },
+            classNames={{
+                wrapper: "max-h-[382px]",
             }}
-            classNames={classNames}
             selectedKeys={selectedKeys}
             selectionMode="multiple"
             sortDescriptor={sortDescriptor}

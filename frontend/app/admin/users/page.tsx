@@ -3,6 +3,7 @@ import { GET } from "@/lib/http";
 import { User } from "@/lib/types";
 import cn from "classnames";
 import { redirect } from "next/navigation";
+import NextTable from "@/components/core/NextTable";
 
 export const metadata = {
     title: "Users | Starter Template",
@@ -31,6 +32,15 @@ export default async function Users({ searchParams }: { searchParams: { page: st
         return <div className="px-6 py-8 rounded-md">No Users!</div>;
     }
     const header = ["S/N", "Name", "Email", "Status", "Date", "Last Updated"];
+    const columns = [
+        { name: "S/N", uid: "sn", sortable: true },
+        { name: "NAME", uid: "name", sortable: true },
+        { name: "EMAIL", uid: "email", sortable: true },
+        { name: "STATUS", uid: "status", sortable: true },
+        { name: "DATE", uid: "date" },
+        { name: "LAST UPDATED", uid: "update" },
+        { name: "ACTIONS", uid: "actions" },
+    ];
     const rows = users.map((item: User, index: number) => {
         return [
             <div className="" key={index + "g"}>
@@ -60,7 +70,7 @@ export default async function Users({ searchParams }: { searchParams: { page: st
             <time dateTime={item.updated_at} key={index + "d"}>
                 {item.updated_at}
             </time>,
-            <a href="#" className="text-indigo-600 hover:text-indigo-900" key={index + "e"}>
+            <a href="/" className="text-indigo-600 hover:text-indigo-900" key={index + "e"}>
                 Edit
             </a>,
         ];
@@ -71,6 +81,7 @@ export default async function Users({ searchParams }: { searchParams: { page: st
             <div>
                 <h2 className="text-base font-semibold font-display">Users</h2>
                 <Table header={header} rows={rows} pagination={pag}></Table>
+                {header.length > 0 && <NextTable columns={columns} rows={rows} pagination={pag}></NextTable>}
             </div>
         </div>
     );

@@ -7,7 +7,6 @@ import NextLink from "next/link";
 
 export default function UserDropDown() {
     const { data: session } = useSession();
-    console.log("🚀 ~ UserDropDown ~ session:", session);
     return (
         // <div className="flex items-center">
         <Dropdown placement="bottom-start">
@@ -28,7 +27,7 @@ export default function UserDropDown() {
                     <p className="font-bold">Signed in as</p>
                     <p className="font-bold">@{session?.user?.email}</p>
                 </DropdownItem>
-                <DropdownItem key="settings">
+                <DropdownItem key="admin">
                     <NextLink href="/admin">Admin</NextLink>
                 </DropdownItem>
                 <DropdownItem key="settings">My Settings</DropdownItem>

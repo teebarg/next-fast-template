@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { BookmarkSquareIcon, BookOpenIcon, QueueListIcon, RssIcon } from "@heroicons/react/24/solid";
-import HomeNav from "@/components/home/Nav";
+import Navbar from "@/components/home/navbar";
 import Footer from "@/components/Footer";
 
 const links = [
@@ -31,7 +31,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
     }, [error]);
     return (
         <div className="bg-white">
-            <HomeNav />
+            <Navbar />
             <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
                 <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
                     <p className="text-base font-semibold leading-8 text-indigo-600">404</p>
