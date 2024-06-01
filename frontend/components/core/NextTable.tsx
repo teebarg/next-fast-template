@@ -23,7 +23,7 @@ import { capitalize } from "@/lib/utils";
 import { Column, TableProps } from "@/lib/types";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-export default function NextTable({ rows = [], columns = [], callbackFunction, onSearchChange, pagination, query }: TableProps) {
+export default function NextTable({ rows = [], columns = [], callbackFunction, onSearchChange, onAddNew, pagination, query }: TableProps) {
     type Model = (typeof rows)[0];
 
     const router = useRouter();
@@ -122,7 +122,7 @@ export default function NextTable({ rows = [], columns = [], callbackFunction, o
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" endContent={<PlusIcon />}>
+                        <Button onPress={onAddNew} color="primary" endContent={<PlusIcon />}>
                             Add New
                         </Button>
                     </div>

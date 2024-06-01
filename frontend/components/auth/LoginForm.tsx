@@ -35,6 +35,7 @@ export default function LoginForm() {
         try {
             const response: SignInResponse | undefined = await signIn("credentials", { redirect: false, email, password });
             if (response?.ok) {
+                // eslint-disable-next-line no-undef
                 window.location.href = "/";
                 setLoading(false);
                 return;
@@ -46,8 +47,7 @@ export default function LoginForm() {
             }
             setLoading(false);
         } catch (error) {
-            console.log(error);
-            setErrorMessage("An error occurred, please contact the administrator");
+            setErrorMessage("An error occurred, please contact the administrator" + error.message);
             setLoading(false);
         }
     };

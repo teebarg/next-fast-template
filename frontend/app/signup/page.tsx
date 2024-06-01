@@ -4,7 +4,7 @@ import SignUpForm from "@/components/auth/SignUpForm";
 import AuthGirl from "@/public/auth-girl.svg";
 import { ThemeSwitch } from "@/components/theme-switch";
 
-export default function Login() {
+export default function SignUp() {
     return (
         <div className="flex min-h-screen">
             <div className="fixed left-4 top-4">

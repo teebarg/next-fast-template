@@ -3,6 +3,7 @@ import { Controller, UseFormRegister } from "react-hook-form";
 import Select from "react-select";
 import { Input } from "@nextui-org/input";
 import { EyeSlashFilledIcon, EyeFilledIcon } from "@/components/icons";
+import { Checkbox, Switch } from "@nextui-org/react";
 
 const formClasses = "input input-bordered w-full form-fix";
 
@@ -60,7 +61,7 @@ type Rules = {
     validate?: (value: {}) => boolean | string;
 };
 
-export function TextField({ name, label, type = "text", className, defaultValue, register, rules, error, ...props }: FieldProps) {
+export function TextField({ name, label, type = "text", defaultValue, register, rules, error, ...props }: FieldProps) {
     let id = useId();
     const formRules: Rules = {};
     const { min, max, minLength, maxLength, email, required, pattern } = rules || {};
@@ -124,7 +125,6 @@ export function TextField({ name, label, type = "text", className, defaultValue,
             {...register(name, formRules)}
             isInvalid={error}
             errorMessage={error?.message}
-            onClear={() => console.log("input cleared")}
         />
     );
 }
@@ -140,19 +140,7 @@ export function SelectField({ name, label, className, register, ...props }: Fiel
     );
 }
 
-export function CheckBoxField({ name, label, className, register, ...props }: FieldProps) {
-    let id = useId();
-    const formRules: Rules = {};
-
-    return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
-            <input id={id} type="checkbox" {...props} className="toggle toggle-primary" {...register(name, formRules)} />
-        </div>
-    );
-}
-
-export function MutiSelectField({ name, label, className, options, control, defaultValue }: any) {
+export function MutiSelectField({ name, label, className, options, control }: any) {
     let id = useId();
 
     return (
@@ -160,7 +148,6 @@ export function MutiSelectField({ name, label, className, options, control, defa
             {label && <Label id={id}>{label}</Label>}
             <Controller
                 control={control}
-                defaultValue={defaultValue}
                 name={name}
                 render={({ field: { onChange, onBlur, value } }) => (
                     <Select isMulti classNamePrefix="select" options={options} onChange={onChange} onBlur={onBlur} value={value} />
@@ -172,7 +159,7 @@ export function MutiSelectField({ name, label, className, options, control, defa
 
 export function TextAreaField({ name, register, rules, error, handleClick, loading, ...props }: FieldProps) {
     let id = useId();
-    // const textarea = React.useRef<HTMLTextAreaElement>(null);
+    // eslint-disable-next-line no-undef
     const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         e.target.style.height = "auto";
         e.target.style.height = e.target.scrollHeight + "px";
@@ -226,7 +213,7 @@ export function TextAreaField({ name, register, rules, error, handleClick, loadi
     );
 }
 
-export function PasswordField({ name, label, type = "text", className, defaultValue, register, rules, error, ...props }: FieldProps) {
+export function PasswordField({ name, label, register, rules, error, ...props }: FieldProps) {
     const [isVisible, setIsVisible] = React.useState(false);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
@@ -284,5 +271,37 @@ export function PasswordField({ name, label, type = "text", className, defaultVa
             }
             {...props}
         />
+    );
+}
+
+export function SwitchField({ name, label, className, control }: FieldProps) {
+    return (
+        <div className={className}>
+            <Controller
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => (
+                    <Switch onChange={onChange} isSelected={value}>
+                        {label}
+                    </Switch>
+                )}
+            />
+        </div>
+    );
+}
+
+export function CheckBoxField({ name, label, className, control }: FieldProps) {
+    return (
+        <div className={className}>
+            <Controller
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => (
+                    <Checkbox onChange={onChange} defaultSelected={value} color="secondary" size="md">
+                        {label}
+                    </Checkbox>
+                )}
+            />
+        </div>
     );
 }

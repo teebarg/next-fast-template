@@ -32,6 +32,7 @@ type TableProps = {
     pagination?: Pagination;
     callbackFunction: (user: any, columnKey: string | number) => ReactNode;
     onSearchChange: (value: string) => void;
+    onAddNew?: () => void;
     query: string;
 };
 

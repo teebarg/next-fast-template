@@ -4,22 +4,26 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 interface ChildComponentProps {
     children?: ReactNode;
     onClose?: () => void;
+    onConfirm?: () => void;
     modalTitle?: string;
     action?: string;
+    isPending?: boolean;
     size?: "sm" | "md" | "lg" | "xl";
     backdrop?: "opaque" | "blur" | "transparent";
 }
 
 interface ChildComponentHandles {
     onOpen: () => void;
+    onClose: () => void;
 }
 
 // eslint-disable-next-line react/display-name
 const NextModal = forwardRef<ChildComponentHandles, ChildComponentProps>(
-    ({ children, modalTitle = "", action = "Save", size = "md", backdrop = "opaque" }, ref) => {
-        const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    ({ children, modalTitle = "", action = "Save", size = "md", backdrop = "opaque", onConfirm, isPending }, ref) => {
+        const { isOpen, onOpen, onClose, onOpenChange } = useDisclosure();
         useImperativeHandle(ref, () => ({
             onOpen,
+            onClose,
         }));
 
         return (
@@ -41,7 +45,7 @@ const NextModal = forwardRef<ChildComponentHandles, ChildComponentProps>(
                                 <Button color="danger" variant="light" onPress={onClose}>
                                     Close
                                 </Button>
-                                <Button color="primary" onPress={onClose}>
+                                <Button color="primary" onPress={onConfirm} isLoading={isPending}>
                                     {action}
                                 </Button>
                             </ModalFooter>

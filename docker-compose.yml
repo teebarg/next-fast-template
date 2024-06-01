@@ -24,7 +24,7 @@ services:
     volumes:
       - next-fast-data:/var/lib/postgresql/data/pgdata
     env_file:
-      - .env
+      - ./backend/.env
     environment:
       - PGDATA=/var/lib/postgresql/data/pgdata
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
@@ -47,7 +47,7 @@ services:
     depends_on:
       - db
     env_file:
-      - .env
+      - ./backend/.env
 
     build:
       context: ./backend
@@ -76,7 +76,7 @@ services:
     environment:
       - NODE_ENV=development
     env_file:
-      - .env
+      - ./frontend/.env
 volumes:
   next-fast-data:
 
