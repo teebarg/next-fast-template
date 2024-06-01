@@ -22,7 +22,7 @@ export default function UserDropDown() {
                 />
             </DropdownTrigger>
             <DropdownMenu aria-label="User Actions" variant="flat">
-                <DropdownItem key="profile" className="h-14 gap-2">
+                <DropdownItem key="user" className="h-14 gap-2">
                     <p className="font-bold">Signed in as</p>
                     <p className="font-bold">@{session?.user?.email}</p>
                 </DropdownItem>

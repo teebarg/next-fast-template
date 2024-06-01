@@ -2,10 +2,15 @@
 
 import { TableProps } from "@/lib/types";
 import NextTable from "@/components/core/NextTable";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef } from "react";
 import { Button, DropdownTrigger, Dropdown, DropdownMenu, DropdownItem, Chip, Badge, Avatar, Tooltip } from "@nextui-org/react";
 import { VerticalDotsIcon, CheckIcon, EyeIcon, EditIcon, DeleteIcon } from "@/components/icons";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import NextModal from "@/components/core/Modal";
+
+interface ChildComponentHandles {
+    onOpen: () => void;
+}
 
 export default function RowRender({
     rows = [],
@@ -16,6 +21,7 @@ export default function RowRender({
     pagination: TableProps["pagination"];
     query: string;
 }) {
+    const modalRef = useRef<ChildComponentHandles>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -42,6 +48,12 @@ export default function RowRender({
 
     const onSearchChange = (value: string) => {
         router.push(pathname + "?" + createQueryString("name", value));
+    };
+
+    const handleView = () => {
+        if (modalRef.current) {
+            modalRef.current.onOpen();
+        }
     };
 
     const rowRender = (user: any, columnKey: string | number) => {
@@ -89,7 +101,12 @@ export default function RowRender({
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem>View</DropdownItem>
+                                <DropdownItem>
+                                    {" "}
+                                    <Button color="danger" variant="light" onPress={handleView}>
+                                        View
+                                    </Button>
+                                </DropdownItem>
                                 <DropdownItem>Edit</DropdownItem>
                                 <DropdownItem>Delete</DropdownItem>
                             </DropdownMenu>
@@ -101,7 +118,7 @@ export default function RowRender({
                     <div className="relative flex items-center gap-2">
                         <Tooltip content="Details">
                             <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
-                                <EyeIcon />
+                                <EyeIcon onClick={handleView} />
                             </span>
                         </Tooltip>
                         <Tooltip content="Edit user">
@@ -122,13 +139,21 @@ export default function RowRender({
     };
 
     return (
-        <NextTable
-            callbackFunction={rowRender}
-            onSearchChange={onSearchChange}
-            columns={columns}
-            rows={rows}
-            pagination={pagination}
-            query={query}
-        ></NextTable>
+        <>
+            <NextTable
+                callbackFunction={rowRender}
+                onSearchChange={onSearchChange}
+                columns={columns}
+                rows={rows}
+                pagination={pagination}
+                query={query}
+            />
+            <NextModal ref={modalRef} modalTitle="User Details">
+                <p>
+                    Hey there! Im a modal. You can close me by clicking the close button or clicking outside of me. I am quite useful. You can put any
+                    content here.
+                </p>
+            </NextModal>
+        </>
     );
 }
