@@ -1,7 +1,7 @@
 import { GET } from "@/lib/http";
 import { redirect } from "next/navigation";
 import React from "react";
-import RowRender from "./Data";
+import TableRow from "./TableRow";
 
 export const metadata = {
     title: "Users | Starter Template",
@@ -11,8 +11,12 @@ export const metadata = {
 async function getData(page: string = "1", per_page: string = "1", name: string = "") {
     const { ok, status, data } = await GET(`/users/?page=${page}&per_page=${per_page}&name=${name}`, "users");
 
-    if ([401, 403].includes(status)) {
+    if ([401].includes(status)) {
         redirect("/logout");
+    }
+
+    if ([403].includes(status)) {
+        redirect("/");
     }
 
     if (!ok) {
@@ -33,7 +37,7 @@ export default async function Users({ searchParams }: { searchParams: { page: st
         <div className="py-2">
             <div>
                 <h2 className="text-base font-semibold font-display my-4">Users</h2>
-                {users.length > 0 && <RowRender rows={users} pagination={pag} query={searchParams.name}></RowRender>}
+                {users.length > 0 && <TableRow rows={users} pagination={pag} query={searchParams.name}></TableRow>}
             </div>
         </div>
     );

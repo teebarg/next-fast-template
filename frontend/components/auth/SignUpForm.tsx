@@ -59,6 +59,7 @@ export default function SignUpForm() {
             // Sign In to Next Auth
             const response: SignInResponse | undefined = await signIn("credentials", { redirect: false, email, password });
             if (response?.ok) {
+                // eslint-disable-next-line no-undef
                 window.location.href = "/";
                 return;
             }

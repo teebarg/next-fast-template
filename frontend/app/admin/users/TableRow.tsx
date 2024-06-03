@@ -12,7 +12,7 @@ interface ChildComponentHandles {
     onOpen: () => void;
 }
 
-export default function RowRender({
+export default function TableRow({
     rows = [],
     pagination,
     query,

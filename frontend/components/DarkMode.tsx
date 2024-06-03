@@ -1,28 +1,32 @@
 "use client";
 
-// components/DarkMode.tsx
 import React, { useEffect, useState } from "react";
 
 const DarkMode: React.FC = () => {
     const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
 
     useEffect(() => {
+        // eslint-disable-next-line no-undef
         const savedTheme = localStorage.getItem("theme") as "light" | "dark" | "system";
 
         if (savedTheme) {
             setTheme(savedTheme);
         } else {
+            // eslint-disable-next-line no-undef
             const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
             setTheme(mediaQuery.matches ? "dark" : "light");
         }
     }, []);
 
     useEffect(() => {
+        // eslint-disable-next-line no-undef
         const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
+        // eslint-disable-next-line no-undef
         const handleChange = (e: MediaQueryListEvent) => {
             const newTheme = e.matches ? "dark" : "light";
             if (theme === "system") {
+                // eslint-disable-next-line no-undef
                 document.documentElement.classList.toggle("dark", newTheme === "dark");
             }
         };
@@ -35,20 +39,25 @@ const DarkMode: React.FC = () => {
     useEffect(() => {
         switch (theme) {
             case "dark":
+                // eslint-disable-next-line no-undef
                 document.documentElement.classList.add("dark");
                 break;
             case "light":
+                // eslint-disable-next-line no-undef
                 document.documentElement.classList.remove("dark");
                 break;
             case "system":
                 /* eslint-disable no-case-declarations */
+                // eslint-disable-next-line no-undef
                 const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+                // eslint-disable-next-line no-undef
                 document.documentElement.classList.toggle("dark", mediaQuery.matches);
                 break;
             default:
                 break;
         }
 
+        // eslint-disable-next-line no-undef
         localStorage.setItem("theme", theme);
     }, [theme]);
 

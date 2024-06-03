@@ -3,6 +3,7 @@ from sqlmodel import Session, select
 import crud
 from core.config import settings
 from models.user import User, UserCreate
+from core.logging import logger
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly
@@ -30,4 +31,4 @@ def init_db(session: Session, auth) -> None:
                 password=settings.FIRST_SUPERUSER_PASSWORD,
             )
         except Exception as e:
-            print(e)
+            logger.error(e)
