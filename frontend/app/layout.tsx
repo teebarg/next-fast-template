@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { SessionProvider } from "@/components/sessionProvider";
 import cn from "classnames";
-import DarkMode from "@/components/DarkMode";
+import { Providers } from "./providers";
 
 const outfit = Outfit({ weight: ["400", "500", "600"], subsets: ["latin"] });
 
@@ -24,10 +24,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // @ts-expect-error
     const session = await getServerSession(authOptions);
     return (
-        <html lang="en" className={cn("scroll-smooth antialiased", lexend.variable, outfit.className)}>
-            <body className="h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
-                <DarkMode />
-                <SessionProvider session={session}>{children}</SessionProvider>
+        <html suppressHydrationWarning lang="en" className={cn("dark scroll-smooth antialiased", lexend.variable, outfit.className)}>
+            <body className="min-h-screen bg-background">
+                <Providers>
+                    <div className="relative flex flex-col h-screen">
+                        <SessionProvider session={session}>{children}</SessionProvider>
+                    </div>
+                </Providers>
             </body>
         </html>
     );

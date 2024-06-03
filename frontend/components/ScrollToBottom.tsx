@@ -1,4 +1,3 @@
-// ScrollToBottom.tsx
 "use client";
 
 import React, { useEffect, useRef } from "react";
@@ -8,6 +7,7 @@ interface Props {
 }
 
 const ScrollToBottom: React.FC<Props> = ({ children }) => {
+    // eslint-disable-next-line no-undef
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -19,11 +19,11 @@ const ScrollToBottom: React.FC<Props> = ({ children }) => {
             const mutationCallback: MutationCallback = (mutationsList: any) => {
                 for (const mutation of mutationsList) {
                     if (mutation.type === "childList") {
-                        console.log("A child node has been added or removed.");
                         if (scrollContainer) {
                             scrollContainer.scrollTop = scrollContainer?.scrollHeight ?? 0;
                         }
                     } else if (mutation.type === "attributes") {
+                        // eslint-disable-next-line no-console
                         console.log("Attributes have changed.");
                     }
                 }

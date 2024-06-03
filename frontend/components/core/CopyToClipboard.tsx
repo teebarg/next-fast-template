@@ -5,9 +5,10 @@ const CopyToClipboard = () => {
 
     const handleCopyToClipboard = async () => {
         try {
+            // eslint-disable-next-line no-undef
             await navigator.clipboard.writeText(textToCopy);
-            alert("Text copied to clipboard!");
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error("Failed to copy: ", err);
         }
     };

@@ -1,16 +1,10 @@
 import React, { useId } from "react";
 import { Controller, UseFormRegister } from "react-hook-form";
-import Select from "react-select";
+import { Input } from "@nextui-org/input";
+import { EyeSlashFilledIcon, EyeFilledIcon } from "@/components/icons";
+import { Checkbox, Switch, Select, SelectItem } from "@nextui-org/react";
 
 const formClasses = "input input-bordered w-full form-fix";
-
-function Label({ id, children }: { id: string; children: React.ReactNode }) {
-    return (
-        <label htmlFor={id} className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
-            {children}
-        </label>
-    );
-}
 
 type Types = "text" | "password" | "email" | "number";
 
@@ -19,9 +13,10 @@ type RulesProps = {
     max?: number;
     minLength?: number;
     maxLength?: number;
-    required?: boolean | string;
+    required?: boolean;
     email?: boolean;
     confirmPassword?: {};
+    pattern?: RegExp;
 };
 
 type FieldProps = {
@@ -36,14 +31,19 @@ type FieldProps = {
 
 type Rules = {
     required?: boolean | string;
+    min?: {
+        value: number;
+        message: string;
+    };
+    max?: {
+        value: number;
+        message: string;
+    };
     minLength?: {
         value: number;
         message: string;
     };
-    maxLength?: {
-        value: number;
-        message: string;
-    };
+    maxLength?: { value: number; message: string };
     pattern?: {
         value: RegExp;
         message: string;
@@ -52,26 +52,40 @@ type Rules = {
     validate?: (value: {}) => boolean | string;
 };
 
-export function TextField({ name, label, type = "text", className, register, rules, error, ...props }: FieldProps) {
+export function TextField({ name, label, type = "text", defaultValue, register, rules, error, ...props }: FieldProps) {
     let id = useId();
     const formRules: Rules = {};
-    const { min, max, email, confirmPassword, required } = rules || {};
+    const { min, max, minLength, maxLength, email, required, pattern } = rules || {};
 
     if (required) {
         formRules["required"] = typeof required === "boolean" ? `${label} is required` : required;
     }
 
     if (min) {
-        formRules["minLength"] = {
+        formRules["min"] = {
             value: min,
-            message: `${label} must have a minimum of ${min} characters`,
+            message: `The value of ${label} must be greater than or equal to ${min}`,
         };
     }
 
     if (max) {
-        formRules["maxLength"] = {
+        formRules["max"] = {
             value: max,
-            message: `${label} must have a minimum of ${max} characters`,
+            message: `The value of ${label} must be less than or equal to ${max}`,
+        };
+    }
+
+    if (minLength) {
+        formRules["minLength"] = {
+            value: minLength,
+            message: `${label} must have a minimum of ${minLength} characters`,
+        };
+    }
+
+    if (maxLength) {
+        formRules["maxLength"] = {
+            value: maxLength,
+            message: `${label} must have a minimum of ${maxLength} characters`,
         };
     }
 
@@ -82,54 +96,69 @@ export function TextField({ name, label, type = "text", className, register, rul
         };
     }
 
-    if (confirmPassword) {
-        formRules["validate"] = (value: {}) => value === confirmPassword || "Passwords do not match";
+    if (pattern) {
+        formRules["pattern"] = {
+            value: pattern,
+            message: "The value entered does not match the required pattern",
+        };
     }
 
     return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
-            <input id={id} type={type} {...props} className={formClasses} {...register(name, formRules)} />
-            {error && <span className="text-xs text-red-400">{error.message}</span>}
-        </div>
+        <Input
+            isClearable
+            isRequired={required}
+            id={id}
+            type={type}
+            label={label}
+            {...props}
+            defaultValue={defaultValue}
+            className={formClasses}
+            {...register(name, formRules)}
+            isInvalid={error}
+            errorMessage={error?.message}
+        />
     );
 }
 
-export function SelectField({ name, label, className, register, ...props }: FieldProps) {
+export function SelectField({
+    name,
+    label,
+    error,
+    options,
+    control,
+    rules,
+    variant = "flat",
+    selectionMode = "single",
+    labelPlacement = "inside",
+    description = "",
+}: any) {
     let id = useId();
+    const { required } = rules || {};
 
     return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
-            <select id={id} {...props} className={formClasses} {...register(name)} />
-        </div>
-    );
-}
-
-export function CheckBoxField({ name, label, className, register, ...props }: FieldProps) {
-    let id = useId();
-    const formRules: Rules = {};
-
-    return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
-            <input id={id} type="checkbox" {...props} className="toggle toggle-primary" {...register(name, formRules)} />
-        </div>
-    );
-}
-
-export function MutiSelectField({ name, label, className, options, control, defaultValue }: any) {
-    let id = useId();
-
-    return (
-        <div className={className}>
-            {label && <Label id={id}>{label}</Label>}
+        <div key={id} className="w-full">
             <Controller
                 control={control}
-                defaultValue={defaultValue}
                 name={name}
-                render={({ field: { onChange, onBlur, value } }) => (
-                    <Select isMulti classNamePrefix="select" options={options} onChange={onChange} onBlur={onBlur} value={value} />
+                render={({ field: { onChange, value } }) => (
+                    <Select
+                        color="secondary"
+                        variant={variant}
+                        isRequired={required}
+                        label={label}
+                        onChange={onChange}
+                        selectedKeys={value}
+                        placeholder="Select an animal"
+                        description={description}
+                        selectionMode={selectionMode}
+                        className="max-w-xs"
+                        labelPlacement={labelPlacement}
+                        size="md"
+                        errorMessage={error?.message}
+                        isInvalid={error}
+                    >
+                        {options?.map((item: { value: string; label: string }) => <SelectItem key={item.value}>{item.label}</SelectItem>)}
+                    </Select>
                 )}
             />
         </div>
@@ -138,7 +167,7 @@ export function MutiSelectField({ name, label, className, options, control, defa
 
 export function TextAreaField({ name, register, rules, error, handleClick, loading, ...props }: FieldProps) {
     let id = useId();
-    // const textarea = React.useRef<HTMLTextAreaElement>(null);
+    // eslint-disable-next-line no-undef
     const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         e.target.style.height = "auto";
         e.target.style.height = e.target.scrollHeight + "px";
@@ -188,6 +217,99 @@ export function TextAreaField({ name, register, rules, error, handleClick, loadi
                     </button>
                 )}
             </div>
+        </div>
+    );
+}
+
+export function PasswordField({ name, label, register, rules, error, ...props }: FieldProps) {
+    const [isVisible, setIsVisible] = React.useState(false);
+
+    const toggleVisibility = () => setIsVisible(!isVisible);
+    let id = useId();
+    const formRules: Rules = {};
+    const { minLength, maxLength, confirmPassword, required, pattern } = rules || {};
+
+    if (required) {
+        formRules["required"] = typeof required === "boolean" ? `${label} is required` : required;
+    }
+
+    if (minLength) {
+        formRules["minLength"] = {
+            value: minLength,
+            message: `${label} must have a minimum of ${minLength} characters`,
+        };
+    }
+
+    if (maxLength) {
+        formRules["maxLength"] = {
+            value: maxLength,
+            message: `${label} must have a minimum of ${maxLength} characters`,
+        };
+    }
+
+    if (confirmPassword) {
+        formRules["validate"] = (value: {}) => value === confirmPassword || "Passwords do not match";
+    }
+
+    if (pattern) {
+        formRules["pattern"] = {
+            value: pattern,
+            message: "The value entered does not match the required pattern",
+        };
+    }
+
+    return (
+        <Input
+            isRequired={required}
+            id={id}
+            type={isVisible ? "text" : "password"}
+            label={label}
+            className={formClasses}
+            {...register(name, formRules)}
+            isInvalid={error}
+            errorMessage={error?.message}
+            endContent={
+                <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                    {isVisible ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    )}
+                </button>
+            }
+            {...props}
+        />
+    );
+}
+
+export function SwitchField({ name, label, className, control }: FieldProps) {
+    return (
+        <div className={className}>
+            <Controller
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => (
+                    <Switch onChange={onChange} isSelected={value}>
+                        {label}
+                    </Switch>
+                )}
+            />
+        </div>
+    );
+}
+
+export function CheckBoxField({ name, label, className, control }: FieldProps) {
+    return (
+        <div className={className}>
+            <Controller
+                control={control}
+                name={name}
+                render={({ field: { onChange, value } }) => (
+                    <Checkbox onChange={onChange} defaultSelected={value} color="secondary" size="md">
+                        {label}
+                    </Checkbox>
+                )}
+            />
         </div>
     );
 }

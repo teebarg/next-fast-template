@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER_LASTNAME: str
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
+    USERS_OPEN_REGISTRATION: bool = False
+
+    SMTP_HOST:str = "smtp.gmail.com"
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAILS_FROM_EMAIL: str = "info@example.com"
+    SMTP_TLS: bool = True
+    SMTP_SSL: bool = False
+    SMTP_PORT: int = 587
 
     model_config = SettingsConfigDict(env_file=".env")
 

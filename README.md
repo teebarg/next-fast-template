@@ -24,7 +24,7 @@ Generate a backend and frontend stack using Python, including interactive API do
 - 🚀 [Nextjs](https://nextjs.org/) for the frontend.
     - 💃 Using TypeScript, hooks and other parts of a modern frontend stack.
     - 🎨 [Tailwindcss](https://tailwindcss.com/) for the frontend styling.
-    - 🎨 [Daisy UI](https://daisyui.com/) for the frontend components.
+    - 🎨 [Next UI](https://nextui.org/) for the frontend components.
     - 🤖 An automatically generated frontend client.
     - 🦇 Dark mode support.
 - 🐋 [Docker Compose](https://www.docker.com) for development and production.

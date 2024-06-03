@@ -1,17 +1,15 @@
 from datetime import datetime, timedelta
-from typing import Annotated, Any
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from firebase_admin import auth as firebase_auth
-from sqlmodel import Session
 
 import crud
 import deps
 import schemas
 from core.config import settings
-from core.logging import logger
 from models.user import User, UserCreate
 
 # Create a router for users
@@ -22,7 +20,7 @@ router = APIRouter()
 async def login_for_access_token(
     credentials: schemas.SignIn,
     auth: Any = Depends(deps.get_auth),
-    db=Annotated[Session, Depends(deps.get_db)],
+    db=Depends(deps.get_db)
 ) -> Any:
     """
     User login to get access token (JWT).
@@ -93,7 +91,7 @@ async def sign_up(
             raise HTTPException(status_code=400, detail="An error occurred") from e
 
 
-@router.post("/login/access-token", response_model=schemas.Token)
+@router.post("/login/password", response_model=schemas.Token)
 def login_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     auth: Any = Depends(deps.get_auth),
@@ -124,18 +122,20 @@ def login_access_token(
 
 
 @router.post("/logout")
-def logout(current_user: schemas.User = Depends(deps.get_current_user)) -> Any:
+def logout(uid: str = Depends(deps.get_token_uid)) -> Any:
     """
     Log out current user.
     """
     try:
-        firebase_auth.revoke_refresh_tokens(current_user.get("uid"))
+        firebase_auth.revoke_refresh_tokens(uid)
         return JSONResponse(
             status_code=200,
             content={"message": "User signed out successfully"},
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Error signing out user") from e
+        raise HTTPException(
+            status_code=400, detail=f"Error signing out user. Error: ${e}"
+        ) from e
 
 
 @router.post("/refresh-token")
@@ -175,12 +175,8 @@ def social(
     email = credentials.email
 
     def get_token(uid: str) -> str:
-        try:
-            custom_token = firebase_auth.create_custom_token(uid).decode("utf-8")
-            user = auth.sign_in_with_custom_token(custom_token)
-        except Exception as e:
-            logger.error(f"Error signing in with custom token: {e}")
-
+        custom_token = firebase_auth.create_custom_token(uid).decode("utf-8")
+        user = auth.sign_in_with_custom_token(custom_token)
         return {
             "access_token": user["idToken"],
             "refresh_token": user["refreshToken"],
@@ -197,7 +193,6 @@ def social(
         return JSONResponse(status_code=200, content=get_token(str(user.id)))
 
     except Exception as e:
-        logger.error(f"Error creating user: {e}")
         return JSONResponse(
             status_code=400,
             content={"message": "An error occurred", "error": str(e)},

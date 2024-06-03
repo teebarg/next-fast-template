@@ -4,18 +4,17 @@ import firebase_admin
 import pyrebase
 import requests
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 from firebase_admin import auth, credentials, storage
 from sqlmodel import Session
+from core.logging import logger
 
 import crud
-import schemas
 from core.config import settings
-from core.logging import logger
 from db.engine import engine
 from models.user import User
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login/access-token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/login/password")
 
 
 def get_db() -> Generator:
@@ -25,6 +24,7 @@ def get_db() -> Generator:
 
 SessionDep = Annotated[Session, Depends(get_db)]
 TokenDep = Annotated[str, Depends(reusable_oauth2)]
+TokenDep2 = Annotated[str, Depends(APIKeyHeader(name="X-Auth"))]
 
 
 def get_auth() -> Generator:
@@ -39,21 +39,10 @@ def get_auth() -> Generator:
         # Get a reference to the auth service
         yield firebase.auth()
     except Exception as e:
-        logger.error(f"An error occurred while trying to initialize auth. Error: {e}")
-        raise HTTPException(
-            status_code=(
-                int(e.status_code)
-                if hasattr(e, "status_code")
-                else status.HTTP_500_INTERNAL_SERVER_ERROR
-            ),
-            detail=(
-                e.detail
-                if hasattr(e, "detail")
-                else f"An error occurred while trying to initialize auth, {e}"
-            ),
-        ) from e
+        logger.error(f"get_auth(auth init) Error, ${e}")
+        raise
     finally:
-        logger.error("auth closed")
+        logger.debug("auth closed")
 
 
 def get_storage() -> Generator:
@@ -68,13 +57,12 @@ def get_storage() -> Generator:
         yield storage.bucket()
     except Exception as e:
         logger.error(f"storage init error, {e}")
+        raise
     finally:
         logger.debug("storage closed")
 
 
-def get_current_user(
-    db: SessionDep, token: TokenDep, auth2: Any = Depends(get_auth)
-) -> User:
+def get_token_uid(token: TokenDep2, auth2: Any = Depends(get_auth)) -> str:
     try:
         if token is None:
             raise HTTPException(
@@ -83,60 +71,72 @@ def get_current_user(
             )
 
         data = auth.verify_id_token(token)
-        if "email" in data:
-            if user := crud.get_user_by_email(db=db, email=data["email"]):
-                return user
-        elif user := crud.user.get(db=db, id=data["uid"]):
-            return user
-
+        if "uid" in data:
+            return data["uid"]
         else:
-            raise HTTPException(status_code=404, detail="User not found")
-    except requests.exceptions.HTTPError:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not validate credentials",
-        ) from None
+            raise HTTPException(status_code=403, detail="invalid ")
     except Exception as e:
-        logger.error(f"Get current user error, ${e}")
-        if "Token expired" in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Token expired",
-            ) from None
-        if "Wrong number of segments in token" in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Provide a valid token",
-            ) from None
-        if "Could not verify token signature." in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Could not verify token signature.",
-            ) from None
+        logger.error(f"Get get_token_uid error, ${e}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=f"An error occurred while trying to validate credentials, {e}",
-        ) from None
+        )
+
+
+def get_current_user(
+    db: SessionDep, token: TokenDep2, auth2: Any = Depends(get_auth)
+) -> User:
+    try:
+        if token is None:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Token cannot be none",
+            )
+
+        data = auth.verify_id_token(token, check_revoked=True)
+        if "email" in data:
+            if user := crud.get_user_by_email(db=db, email=data["email"]):
+                return user
+        if user := crud.user.get(db=db, id=data["uid"]):
+            return user
+        else:
+            raise HTTPException(status_code=404, detail="User not found")
+    except auth.RevokedIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You have been signout",
+        )
+    except auth.UserDisabledError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user is currently disabled",
+        )
+    except auth.InvalidIdTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The provided token is invalid",
+        )
+    except requests.exceptions.HTTPError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+    except Exception as e:
+        logger.error(f"Get current user error, ${e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"An error occurred while trying to validate credentials, {e}",
+        )
 
 
 def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ) -> User:
     if not current_user:
-        raise HTTPException(status_code=401, detail="Unauthenticated user")
+        raise HTTPException(status_code=403, detail="Unauthenticated user")
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
 CurrentUser = Annotated[User, Depends(get_current_active_user)]
-
-
-def get_current_active_superuser(
-    current_user: schemas.User = Depends(get_current_user),
-) -> schemas.User:
-    if not crud.user.is_superuser(current_user):
-        raise HTTPException(
-            status_code=400, detail="The user doesn't have enough privileges"
-        )
-    return current_user
